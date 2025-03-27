@@ -1,6 +1,8 @@
-import { users, type User, type InsertUser, type SenderProfile } from "@shared/schema";
+import { users, senderProfiles, type User, type InsertUser, type SenderProfile } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
-// Modify the interface with any CRUD methods you might need
+// Interface is kept the same for compatibility
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -13,60 +15,59 @@ export interface IStorage {
   deleteSenderProfile(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private senderProfiles: Map<number, SenderProfile>;
-  private currentUserId: number;
-  private currentProfileId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.senderProfiles = new Map();
-    this.currentUserId = 1;
-    this.currentProfileId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getAllSenderProfiles(): Promise<SenderProfile[]> {
-    return Array.from(this.senderProfiles.values()).sort((a, b) => {
-      // Sort by creation date descending (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    // Sort by creation date descending (newest first)
+    return db.select().from(senderProfiles).orderBy(desc(senderProfiles.createdAt));
   }
 
   async getSenderProfile(id: number): Promise<SenderProfile | undefined> {
-    return this.senderProfiles.get(id);
+    const [profile] = await db.select().from(senderProfiles).where(eq(senderProfiles.id, id));
+    return profile || undefined;
   }
 
   async createSenderProfile(profile: Omit<SenderProfile, "id">): Promise<SenderProfile> {
-    const id = this.currentProfileId++;
-    const newProfile: SenderProfile = { ...profile, id };
-    this.senderProfiles.set(id, newProfile);
-    return newProfile;
+    // Handle nullable fields properly for database
+    const dbProfile = {
+      ...profile,
+      vat: profile.vat || null,
+      email: profile.email || null
+    };
+    
+    const [savedProfile] = await db
+      .insert(senderProfiles)
+      .values(dbProfile)
+      .returning();
+    
+    return savedProfile;
   }
 
   async deleteSenderProfile(id: number): Promise<boolean> {
-    if (!this.senderProfiles.has(id)) {
-      return false;
-    }
-    return this.senderProfiles.delete(id);
+    const result = await db
+      .delete(senderProfiles)
+      .where(eq(senderProfiles.id, id))
+      .returning({ id: senderProfiles.id });
+    
+    return result.length > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

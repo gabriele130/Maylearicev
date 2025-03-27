@@ -1,7 +1,7 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { senderProfileSchema } from "@shared/schema";
+import { senderProfileSchema, insertSenderProfileSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -38,17 +38,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new sender profile
   app.post("/api/sender-profiles", async (req, res) => {
     try {
-      // Validate request body
-      const profileData = senderProfileSchema.parse(req.body);
+      // First use the user-facing schema to validate basic format
+      const userProfileData = senderProfileSchema.parse(req.body);
       
-      // Add creation timestamp
-      const profileWithTimestamp = {
-        ...profileData,
-        createdAt: new Date().toISOString(),
+      // Then prepare data for database insert - using insertSenderProfileSchema ensures correct types
+      const dbProfileData = {
+        name: userProfileData.name,
+        profileName: userProfileData.profileName,
+        vat: userProfileData.vat || null, 
+        address: userProfileData.address,
+        city: userProfileData.city,
+        postcode: userProfileData.postcode,
+        phone: userProfileData.phone,
+        email: userProfileData.email || null,
+        createdAt: new Date().toISOString()
       };
       
       // Save to storage
-      const savedProfile = await storage.createSenderProfile(profileWithTimestamp);
+      const savedProfile = await storage.createSenderProfile(dbProfileData);
       
       res.status(201).json(savedProfile);
     } catch (error) {
@@ -56,6 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const validationError = fromZodError(error);
         return res.status(400).json({ message: validationError.message });
       }
+      console.error("Error creating sender profile:", error);
       res.status(500).json({ message: "Failed to create sender profile" });
     }
   });
