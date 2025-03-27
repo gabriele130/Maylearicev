@@ -48,7 +48,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
           <div className="border-b border-gray-400 pb-6 mb-6">
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
-                <div className="bg-primary text-white p-2 rounded">
+                <div className="p-1 rounded">
                   <span className="font-bold text-lg">ML&T</span>
                 </div>
                 <div className="ml-2">
@@ -190,7 +190,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
           <div className="mb-4">
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
-                <div className="bg-primary text-white p-2 rounded">
+                <div className="p-1 rounded">
                   <span className="font-bold text-lg">ML&T</span>
                 </div>
                 <div className="ml-2">
