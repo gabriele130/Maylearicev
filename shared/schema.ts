@@ -82,7 +82,7 @@ export const transportFormSchema = z.object({
     dimensions: z.string().optional(),
     content: z.string().min(1, "Descrizione contenuto è richiesta"),
     shippingCost: z.coerce.number().min(0, "Il costo di spedizione non può essere negativo").optional(),
-    paymentMethod: z.enum(["Contanti", "Carta", "Bonifico", "Contrassegno"]).default("Contanti"),
+    paymentMethod: z.enum(["Contanti", "Carta", "Bonifico", "Contrassegno"]).default("Contanti").optional(),
   }),
   insurance: z.object({
     value: z.coerce.number().min(0, "Il valore assicurato non può essere negativo").optional(),
