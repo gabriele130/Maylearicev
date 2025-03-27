@@ -86,6 +86,9 @@ export default function Home() {
       return;
     }
     
+    // Log what we're trying to save for debugging
+    console.log("Tentativo di salvataggio documento:", JSON.stringify(formData));
+    
     // Save the document
     saveDocumentMutation.mutate(formData);
   };

@@ -200,8 +200,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new transport document
   app.post("/api/transport-documents", async (req, res) => {
     try {
+      console.log("Received document data:", JSON.stringify(req.body));
+      
       // Validate form data
       const formData = transportFormSchema.parse(req.body);
+      
+      console.log("Document data after validation:", JSON.stringify(formData));
       
       // Save the document
       const savedDocument = await storage.createTransportDocument(formData);
