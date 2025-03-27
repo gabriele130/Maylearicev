@@ -96,10 +96,10 @@
   
   .print-section {
     position: absolute;
-    top: -3.2cm; /* Adjusted negative top margin */
+    top: -3.6cm; /* Adjusted negative top margin */
     left: -25%;
     width: 150%;
-    transform: scale(0.88);
+    transform: scale(0.82); /* Further decreased scale for better fit */
     transform-origin: top center;
     box-shadow: none !important;
     border: none !important;
@@ -112,7 +112,8 @@
   .print-section h3, 
   .print-section h4, 
   .print-section div {
-    line-height: 1.1 !important;
+    line-height: 1 !important;
+    margin-bottom: 0.1cm !important;
   }
   
   /* Ensure images are preserved */

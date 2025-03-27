@@ -52,7 +52,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <img 
                     src={logoPath}
                     alt="Maylea Logistics & Transport Logo"
-                    className="h-14 w-auto" 
+                    className="h-10 w-auto" 
                   />
                 </div>
                 <div className="ml-2">
@@ -198,7 +198,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <img 
                     src={logoPath}
                     alt="Maylea Logistics & Transport Logo"
-                    className="h-14 w-auto" 
+                    className="h-10 w-auto" 
                   />
                 </div>
                 <div className="ml-2">
