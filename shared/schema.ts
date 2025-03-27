@@ -11,23 +11,32 @@ export const users = pgTable("users", {
 export const senderProfiles = pgTable("sender_profiles", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  profileName: text("profile_name").notNull(),
-  vat: text("vat"),
   address: text("address").notNull(),
   city: text("city").notNull(),
   postcode: text("postcode").notNull(),
   phone: text("phone").notNull(),
-  email: text("email"),
-  createdAt: text("created_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const transportDocuments = pgTable("transport_documents", {
   id: serial("id").primaryKey(),
-  documentId: text("document_id").notNull().unique(),
+  documentNumber: text("document_number").notNull().unique(),
+  senderName: text("sender_name").notNull(),
+  senderAddress: text("sender_address").notNull(),
+  recipientName: text("recipient_name").notNull(),
+  recipientAddress: text("recipient_address").notNull(),
+  packageContent: text("package_content").notNull(),
+  packageWeight: text("package_weight").notNull(),
+  packageCount: integer("package_count").notNull(),
+  packageDimensions: text("package_dimensions"),
+  insuranceValue: text("insurance_value"),
+  shippingCost: text("shipping_cost"),
+  notes: text("notes"),
+  paymentMethod: text("payment_method"),
   formData: jsonb("form_data").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   expiresAt: timestamp("expires_at").notNull(),
-  shareToken: text("share_token").notNull().unique(),
+  shareToken: text("share_token"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -42,27 +51,22 @@ export const insertSenderProfileSchema = createInsertSchema(senderProfiles).omit
 
 export const senderProfileSchema = z.object({
   id: z.number().optional(),
-  profileName: z.string().min(1, "Nome profilo è richiesto"),
   name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
-  vat: z.string().optional(),
   address: z.string().min(1, "Indirizzo è richiesto"),
   city: z.string().min(1, "Città è richiesta"),
   postcode: z.string().min(1, "CAP è richiesto"),
   phone: z.string().min(1, "Telefono è richiesto"),
-  email: z.string().email("Email non valida").optional().or(z.string().length(0)),
-  createdAt: z.string().optional(),
+  createdAt: z.date().optional(),
 });
 
 export const transportFormSchema = z.object({
   sender: senderProfileSchema,
   recipient: z.object({
     name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
-    vat: z.string().optional(),
     address: z.string().min(1, "Indirizzo è richiesto"),
     city: z.string().min(1, "Città è richiesta"),
     postcode: z.string().min(1, "CAP è richiesto"),
     phone: z.string().min(1, "Telefono è richiesto"),
-    email: z.string().email("Email non valida").optional().or(z.string().length(0)),
   }),
   package: z.object({
     count: z.coerce.number().min(1, "Numero Colli deve essere almeno 1"),
@@ -76,7 +80,6 @@ export const transportFormSchema = z.object({
     notes: z.string().optional(),
   }),
   saveSender: z.boolean().optional(),
-  profileName: z.string().optional(),
 });
 
 export const insertTransportDocumentSchema = createInsertSchema(transportDocuments).omit({
