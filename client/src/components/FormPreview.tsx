@@ -21,6 +21,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   
   // Handle print functionality with window.print()
   const handlePrint = () => {
+    // Aggiungi istruzioni per una migliore visualizzazione di stampa
     window.print();
   };
 
@@ -40,7 +41,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-4 print-section"
+          className="border border-gray-300 rounded-lg p-4 print-section text-[11px]"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-6 mb-6">
