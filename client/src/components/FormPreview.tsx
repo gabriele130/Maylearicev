@@ -5,7 +5,6 @@ import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Printer } from "lucide-react";
-import Logo from "../components/Logo";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -49,7 +48,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
                 <div className="p-1 rounded">
-                  <span className="font-bold text-lg">ML&T</span>
+                  <span className="font-bold text-2xl text-[#40280a]" style={{fontFamily: 'Arial, sans-serif'}}>MAYLEA</span>
                 </div>
                 <div className="ml-2">
                   <h3 className="font-semibold text-primary text-[14px]">MAYLEA – Logistics & Transport</h3>
@@ -191,7 +190,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
                 <div className="p-1 rounded">
-                  <span className="font-bold text-lg">ML&T</span>
+                  <span className="font-bold text-2xl text-[#40280a]" style={{fontFamily: 'Arial, sans-serif'}}>MAYLEA</span>
                 </div>
                 <div className="ml-2">
                   <h3 className="font-semibold text-primary text-[14px]">MAYLEA – Logistics & Transport</h3>
@@ -309,9 +308,9 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 </div>
               </div>
             </div>
-            
+
             {/* Disclaimer and Signature (Client Copy) */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-[11px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
                 <p className="text-[10px] text-gray-700 leading-tight">
