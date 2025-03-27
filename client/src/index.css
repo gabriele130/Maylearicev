@@ -12,165 +12,123 @@
   }
 }
 
-@layer components {
-  /* Miglioramenti per la visualizzazione mobile */
-  @media (max-width: 640px) {
-    .company-logo {
-      @apply text-base;
-    }
-    
-    .print-section {
-      @apply text-[10px];
-    }
-    
-    .print-section h3 {
-      @apply text-sm;
-    }
-    
-    .print-section .text-xs {
-      @apply text-[9px];
-    }
+/* Stili per il mobile */
+@media (max-width: 640px) {
+  .company-logo {
+    font-size: 1rem;
+  }
+  
+  .print-section {
+    font-size: 10px;
+  }
+  
+  .print-section h3 {
+    font-size: 0.875rem;
+  }
+  
+  .print-section .text-xs {
+    font-size: 9px;
   }
 }
 
 /* Stili per la stampa */
 @media print {
-  .print-section {
-    padding: 0 !important;
-    border: 0 !important;
-  }
-  
-  .print-hide {
+  /* Nascondi gli elementi che non devono essere stampati */
+  .print-hide, 
+  header, 
+  nav, 
+  footer, 
+  button, 
+  .card > div:first-child {
     display: none !important;
   }
   
-  /* Nascondi tutti gli elementi eccetto quelli da stampare */
-  body * {
-    visibility: hidden;
-  }
-  
-  /* Mostra solo il contenuto da stampare */
-  .print-section, .print-section * {
-    visibility: visible;
-  }
-  
-  /* Controllo pagine */
+  /* Controllare pagina A4 */
   @page {
     size: A4 portrait;
     margin: 0;
   }
   
-  /* Previene pagine extra*/
+  /* Nasconde la pagina vuota */
   @page :blank {
     display: none;
   }
   
-  /* Previeni avanzamento pagina */
   html, body {
-    height: 29.7cm;
     width: 21cm;
-    overflow: hidden !important;
+    height: 29.7cm;
     margin: 0;
     padding: 0;
+    overflow: hidden;
+    background-color: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
   }
   
-  /* Imposta le dimensioni del contenitore principale per adattarsi a tutto il contenuto */
+  /* Regole per il contenitore di stampa */
   .print-section {
     box-sizing: border-box;
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: relative;
     width: 21cm;
     height: 29.7cm;
     margin: 0 auto;
-    padding: 2mm !important;
-    overflow: hidden !important;
-    page-break-inside: avoid !important;
-    page-break-after: avoid !important;
-    font-size: 6pt !important;
-    transform: scale(0.95);
-    transform-origin: top center;
+    padding: 1cm !important;
+    font-size: 10pt !important;
+    line-height: 1.3 !important;
   }
   
-  /* Formattazione specifica per le copie */
+  /* Visibilità corretta */
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-section, .print-section * {
+    visibility: visible;
+  }
+  
+  /* Regole per le copie */
   .print-section > div:first-child {
-    page-break-after: avoid !important;
-    margin-bottom: 0.1cm;
-    border-bottom: 1px dashed #000 !important;
-    padding-bottom: 0.1cm;
+    margin-bottom: 1.5cm;
+    padding-bottom: 0.5cm;
+    border-bottom: 1px dashed black !important;
   }
   
   .print-section > div:last-child {
-    page-break-before: avoid !important;
-    padding-top: 0.1cm;
+    padding-top: 0.5cm;
   }
   
-  /* Dimensionamento fisso delle due sezioni */
-  .print-section > div:first-child,
-  .print-section > div:last-child {
-    max-height: 14.5cm;
-    overflow: hidden;
+  /* Icona e intestazioni */
+  .print-section h3 {
+    font-size: 14pt !important;
+    margin-bottom: 0.3cm !important;
   }
   
-  /* Icona e titolo azienda più compatti in stampa */
-  .print-section .flex.items-center div.bg-primary {
-    padding: 0.05rem !important;
-    transform: scale(0.85);
+  .print-section .text-xs {
+    font-size: 9pt !important;
+    line-height: 1.2 !important;
   }
   
-  .print-section h3.font-semibold {
-    font-size: 6pt !important;
-    margin-bottom: 0 !important;
-    line-height: 1 !important;
+  .print-section .text-sm {
+    font-size: 11pt !important;
   }
   
-  /* Riduci spaziatura tra elementi */
+  /* Spaziatura */
   .print-section .grid {
-    gap: 0.1rem !important;
-  }
-  
-  .print-section [class*="gap"] {
-    gap: 0.1rem !important;
+    gap: 0.5cm !important;
   }
   
   .print-section [class*="mb-"] {
-    margin-bottom: 0.1rem !important;
+    margin-bottom: 0.5cm !important;
   }
   
-  .print-section [class*="p-"],
-  .print-section [class*="px-"],
-  .print-section [class*="py-"] {
-    padding: 0.05rem !important;
-  }
-  
-  /* Riduci il testo in stampa */
-  .print-section [class*="text-"] {
-    font-size: 6pt !important;
-    line-height: 1 !important;
-  }
-  
-  /* Ridimensiona tutti i bordi e margini */
+  /* Stile bordi */
   .print-section .border {
-    border-width: 0.5px !important;
+    border: 1px solid #222 !important;
   }
   
-  /* Assicura che le card siano visualizzate correttamente */
-  .print-section .card {
-    box-shadow: none !important;
-    border: none !important;
-    background: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  .print-section .rounded {
-    border-radius: 1px !important;
-  }
-  
-  body, html {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-    background-color: white !important;
+  .print-section .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+    padding: 0.2cm !important;
   }
 }
