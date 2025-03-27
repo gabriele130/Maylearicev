@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { SenderProfile } from "@shared/schema";
 import { getQueryFn, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +28,8 @@ import { Trash2, PencilLine, Plus } from "lucide-react";
 export default function Clients() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<SenderProfile | null>(null);
+  const [profileToDelete, setProfileToDelete] = useState<SenderProfile | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -106,7 +119,14 @@ export default function Clients() {
         description: "Il cliente è stato rimosso con successo.",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      // Se il profilo non è trovato (404), è probabilmente già stato eliminato
+      // quindi non mostriamo un errore ma aggiorniamo la lista
+      if (error?.response?.status === 404) {
+        queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
+        return;
+      }
+      
       toast({
         title: "Errore",
         description: "Si è verificato un errore. Riprova.",
@@ -155,6 +175,21 @@ export default function Clients() {
       email: "",
     });
     setIsAddDialogOpen(true);
+  };
+  
+  // Funzione per aprire la finestra di conferma eliminazione
+  const handleConfirmDelete = (profile: SenderProfile) => {
+    setProfileToDelete(profile);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  // Funzione per eseguire l'eliminazione dopo la conferma
+  const handleDelete = () => {
+    if (profileToDelete) {
+      deleteMutation.mutate(profileToDelete.id);
+      setIsDeleteDialogOpen(false);
+      setProfileToDelete(null);
+    }
   };
 
   return (
@@ -241,7 +276,7 @@ export default function Clients() {
                   size="sm" 
                   variant="outline" 
                   className="h-8 text-red-500 hover:text-red-700"
-                  onClick={() => deleteMutation.mutate(profile.id)}
+                  onClick={() => handleConfirmDelete(profile)}
                 >
                   <Trash2 className="h-4 w-4 mr-1" /> Elimina
                 </Button>
@@ -422,6 +457,32 @@ export default function Clients() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare il cliente "{profileToDelete?.name}"?
+              <br />
+              Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {deleteMutation.isPending && (
+                <div className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full"></div>
+              )}
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
