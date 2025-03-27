@@ -74,8 +74,9 @@
     padding: 0.2cm !important;
     font-size: 8pt !important;
     line-height: 1.2 !important;
-    transform: scale(0.98);
+    transform: scale(0.95);
     transform-origin: top center;
+    margin-top: -0.5cm !important;
   }
   
   /* Visibilità corretta */
@@ -89,13 +90,13 @@
   
   /* Regole per le copie */
   .print-section > div:first-child {
-    margin-bottom: 0.8cm;
-    padding-bottom: 0.3cm;
+    margin-bottom: 0.5cm;
+    padding-bottom: 0.2cm;
     border-bottom: 1px dashed black !important;
   }
   
   .print-section > div:last-child {
-    padding-top: 0.3cm;
+    padding-top: 0.2cm;
   }
   
   /* Icona e intestazioni */
