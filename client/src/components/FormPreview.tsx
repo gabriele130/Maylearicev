@@ -135,19 +135,19 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MODALITÀ DI PAGAMENTO</h4>
                 <div className="flex flex-wrap gap-2 text-xs mt-1">
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Contanti' ? 'bg-black' : ''}`}></div>
                     <span>Contanti</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Carta' ? 'bg-black' : ''}`}></div>
                     <span>Carta</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Bonifico' ? 'bg-black' : ''}`}></div>
                     <span>Bonifico</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Contrassegno' ? 'bg-black' : ''}`}></div>
                     <span>Contrassegno</span>
                   </div>
                 </div>
@@ -261,19 +261,19 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MODALITÀ DI PAGAMENTO</h4>
                 <div className="flex flex-wrap gap-2 text-xs mt-1">
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Contanti' ? 'bg-black' : ''}`}></div>
                     <span>Contanti</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Carta' ? 'bg-black' : ''}`}></div>
                     <span>Carta</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Bonifico' ? 'bg-black' : ''}`}></div>
                     <span>Bonifico</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <div className={`h-3 w-3 border border-gray-500 rounded-sm mr-1 ${formData.package.paymentMethod === 'Contrassegno' ? 'bg-black' : ''}`}></div>
                     <span>Contrassegno</span>
                   </div>
                 </div>
@@ -297,17 +297,19 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="border border-gray-300 rounded p-2 mb-4">
               <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
               <p className="text-[9px] text-gray-700 leading-tight">
-                Il mittente dichiara di accettare le condizioni generali di trasporto affisse presso gli uffici Maylea Logistics & Transport. La responsabilità vettoriale è limitata 
-                a 1 € al kg di merce trasportata moltiplicata per il peso lordo della merce danneggiata o smarrita (Art. 1696 c.c.). 
-                Maggiore responsabilità potrà essere assunta dal vettore solo mediante specifica pattuizione scritta e previo pagamento del corrispettivo supplementare per la copertura assicurativa.
+                Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati. Per ulteriori informazioni sulle limitazioni di responsabilità e procedure di reclamo, consultare il sito web o contattare il servizio clienti.
               </p>
             </div>
             
-            {/* Recipient Signature */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-xs font-semibold">Per MAYLEA Logistics & Transport</p>
-                <div className="mt-2 border-b border-gray-400 h-8"></div>
+            {/* Signatures */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border-t border-gray-400 pt-2">
+                <p className="text-xs font-semibold">Firma Mittente</p>
+                <div className="h-10"></div>
+              </div>
+              <div className="border-t border-gray-400 pt-2">
+                <p className="text-xs font-semibold">Firma per Accettazione</p>
+                <div className="h-10"></div>
               </div>
             </div>
           </div>

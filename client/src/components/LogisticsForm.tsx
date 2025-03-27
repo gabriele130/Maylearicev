@@ -1,100 +1,71 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-import { transportFormSchema, type TransportFormData, type SenderProfile } from "@shared/schema";
+import { Checkbox } from "@/components/ui/checkbox";
+import { TransportFormData, transportFormSchema, SenderProfile } from "@shared/schema";
 
 interface LogisticsFormProps {
   onFormDataChange: (data: TransportFormData) => void;
 }
 
 export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) {
-  const { toast } = useToast();
+  // State to store and manage sender profiles
+  const [senderProfiles, setSenderProfiles] = useState<SenderProfile[]>([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(true);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [saveSenderProfile, setSaveSenderProfile] = useState(false);
-
-  // Get saved sender profiles
-  const { data: senderProfiles = [] as SenderProfile[], isLoading: isLoadingProfiles } = useQuery<SenderProfile[]>({
-    queryKey: ['/api/sender-profiles'],
-  });
-
-  // Create new sender profile mutation
-  const createProfileMutation = useMutation({
-    mutationFn: async (profile: Omit<SenderProfile, "id" | "createdAt">) => {
-      // Assicurati che vat ed email siano null e non undefined
-      const sanitizedProfile = {
-        ...profile,
-        vat: profile.vat || null,
-        email: profile.email || null
-      };
-      
-      console.log("Sending profile data:", sanitizedProfile);
-      
-      return apiRequest('/api/sender-profiles', {
-        method: 'POST',
-        body: JSON.stringify(sanitizedProfile),
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: "Profilo salvato",
-        description: "Il profilo mittente è stato salvato con successo.",
-      });
-      // Refresh profiles list
-      queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Errore",
-        description: `Impossibile salvare il profilo: ${error.message}`,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Initialize form with default values
+  
+  // Load sender profiles on component mount
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await fetch("/api/sender-profiles");
+        if (response.ok) {
+          const profiles = await response.json();
+          setSenderProfiles(profiles);
+        }
+      } catch (error) {
+        console.error("Error loading sender profiles:", error);
+      } finally {
+        setLoadingProfiles(false);
+      }
+    };
+    
+    fetchProfiles();
+  }, []);
+  
+  // Form setup
   const form = useForm<TransportFormData>({
     resolver: zodResolver(transportFormSchema),
     defaultValues: {
       sender: {
-        profileName: "",
         name: "",
-        vat: "",
         address: "",
         city: "",
         postcode: "",
         phone: "",
+        vat: "",
         email: "",
+        profileName: "",
       },
       recipient: {
         name: "",
-        vat: "",
         address: "",
         city: "",
         postcode: "",
         phone: "",
+        vat: "",
         email: "",
       },
       package: {
         count: 1,
-        weight: 0.1,
+        weight: 1.0,
         dimensions: "",
         content: "",
         shippingCost: 0,
@@ -104,147 +75,111 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         value: 0,
         notes: "",
       },
-      saveSender: false,
       profileName: "",
     },
   });
-
-  // Watch form changes and update preview
-  const formValues = form.watch();
   
-  // Aggiornamento dell'anteprima con debounce (ritardo di 500ms)
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      // Usa getValues per ottenere i valori attuali del form
-      const currentValues = form.getValues();
-      onFormDataChange(currentValues);
-    }, 500); // ritardo di 500ms
+  // Handle profile selection
+  const handleProfileSelect = (profileId: string) => {
+    setSelectedProfileId(profileId);
     
-    return () => clearTimeout(timeoutId);
-  }, [formValues, form, onFormDataChange]);
-  
-  // Update preview when form changes (per click sul pulsante)
-  const onFormChange = form.handleSubmit((data) => {
-    onFormDataChange(data);
-  });
-
-  // Handle loading saved profile
-  const handleLoadProfile = (profileId: string) => {
-    if (!profileId) return;
-    
-    const selectedProfile = senderProfiles.find(
-      (profile: SenderProfile) => profile.id.toString() === profileId
-    );
-    
-    if (selectedProfile) {
-      form.setValue("sender", {
-        ...selectedProfile,
-        profileName: selectedProfile.profileName || "",
-      });
+    if (profileId && profileId !== "new") {
+      const selectedProfile = senderProfiles.find(
+        (profile: SenderProfile) => profile.id.toString() === profileId
+      );
       
-      // Trigger form update to refresh preview
-      onFormChange();
-      
-      toast({
-        title: "Profilo caricato",
-        description: `Il profilo '${selectedProfile.profileName}' è stato caricato.`,
-      });
+      if (selectedProfile) {
+        form.setValue("sender", {
+          name: selectedProfile.name,
+          address: selectedProfile.address,
+          city: selectedProfile.city,
+          postcode: selectedProfile.postcode,
+          phone: selectedProfile.phone,
+          vat: selectedProfile.vat || "",
+          email: selectedProfile.email || "",
+          profileName: selectedProfile.profileName || selectedProfile.name,
+        });
+      }
     }
   };
-
-  // Handle saving sender profile
-  const handleSaveSenderProfile = () => {
+  
+  // Handle saving a new sender profile
+  const handleSaveSenderProfile = async () => {
     const senderData = form.getValues("sender");
-    const profileName = form.getValues("profileName");
+    const profileName = form.getValues("profileName") || senderData.name;
     
-    if (!profileName) {
-      toast({
-        title: "Nome profilo mancante",
-        description: "Per favore inserisci un nome per questo profilo",
-        variant: "destructive",
+    try {
+      const response = await fetch("/api/sender-profiles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...senderData,
+          profileName,
+        }),
       });
-      return;
+      
+      if (response.ok) {
+        const newProfile = await response.json();
+        setSenderProfiles([...senderProfiles, newProfile]);
+        setSaveSenderProfile(false);
+        form.setValue("profileName", "");
+        
+        // Select the newly created profile
+        setSelectedProfileId(newProfile.id.toString());
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
     }
-    
-    // Check if all required sender fields are filled
-    if (!senderData.name || !senderData.address || !senderData.city || 
-        !senderData.postcode || !senderData.phone) {
-      toast({
-        title: "Dati incompleti",
-        description: "Per favore completa tutti i campi obbligatori del mittente",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Create profile object - rimuovi tutti i campi che non servono al server
-    const { createdAt, id, ...cleanSenderData } = senderData;
-    
-    // Assicurati che i tipi del profilo corrispondano esattamente a quelli attesi da InsertSenderProfile
-    const profileData: Omit<SenderProfile, "id" | "createdAt"> = {
-      name: cleanSenderData.name,
-      profileName,
-      address: cleanSenderData.address,
-      city: cleanSenderData.city,
-      postcode: cleanSenderData.postcode,
-      phone: cleanSenderData.phone,
-      vat: cleanSenderData.vat || null,
-      email: cleanSenderData.email || null
-    };
-    
-    // Save profile
-    createProfileMutation.mutate(profileData);
   };
-
+  
+  // Update preview when form changes
+  const onFormChange = () => {
+    // Get the current form values and pass them to the parent component
+    const currentData = form.getValues();
+    onFormDataChange(currentData);
+  };
+  
   return (
     <Card className="bg-white rounded-lg shadow-md">
       <CardContent className="pt-6">
-        <h2 className="text-xl font-semibold text-primary mb-6">Inserimento Dati di Trasporto</h2>
-        
         <Form {...form}>
-          <form className="space-y-6">
-            {/* Saved Profiles Section */}
-            <div className="bg-gray-50 p-4 rounded-md">
-              <div className="flex flex-wrap items-center gap-3 mb-3">
-                <h3 className="text-md font-medium">Profili Mittente Salvati:</h3>
-                
-                <Select onValueChange={handleLoadProfile}>
-                  <SelectTrigger className="flex-grow">
-                    <SelectValue placeholder="Seleziona un profilo..." />
+          <form className="space-y-8">
+            {/* Sender Profile Selection */}
+            <div className="space-y-4">
+              <h3 className="text-md font-medium border-b border-gray-200 pb-2">Profili Mittente</h3>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Select 
+                  onValueChange={handleProfileSelect} 
+                  value={selectedProfileId || ""}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Seleziona profilo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {isLoadingProfiles ? (
-                      <SelectItem value="loading" disabled>Caricamento...</SelectItem>
-                    ) : senderProfiles.length === 0 ? (
-                      <SelectItem value="empty" disabled>Nessun profilo salvato</SelectItem>
-                    ) : (
-                      senderProfiles.map((profile: SenderProfile) => (
-                        <SelectItem key={profile.id} value={profile.id.toString()}>
-                          {profile.profileName}
-                        </SelectItem>
-                      ))
-                    )}
+                    <SelectItem value="new">Nuovo Profilo</SelectItem>
+                    {senderProfiles.map((profile: SenderProfile) => (
+                      <SelectItem key={profile.id} value={profile.id.toString()}>
+                        {profile.profileName || profile.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 
-                <Button
-                  type="button"
-                  onClick={() => handleLoadProfile(form.getValues("sender.id")?.toString() || "")}
-                  className="bg-primary text-white px-3 py-2 hover:bg-primary/90"
-                >
-                  Carica
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="save-sender"
-                  checked={saveSenderProfile}
-                  onCheckedChange={(checked) => {
-                    setSaveSenderProfile(!!checked);
-                    form.setValue("saveSender", !!checked);
-                  }}
-                />
-                <label htmlFor="save-sender" className="text-sm">Salva questo mittente per uso futuro</label>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="saveSenderProfile"
+                    checked={saveSenderProfile}
+                    onCheckedChange={(checked) => setSaveSenderProfile(!!checked)}
+                  />
+                  <label
+                    htmlFor="saveSenderProfile"
+                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                    Salva come nuovo profilo
+                  </label>
+                </div>
                 
                 {saveSenderProfile && (
                   <FormField
@@ -253,7 +188,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     render={({ field }) => (
                       <FormItem className="flex-grow ml-2">
                         <FormControl>
-                          <Input placeholder="Nome profilo" {...field} />
+                          <Input placeholder="Nome profilo" {...field} value={field.value || ''} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -285,7 +220,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Nome/Ragione Sociale *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -299,7 +234,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>P.IVA/Codice Fiscale</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -313,7 +248,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem className="md:col-span-2">
                       <FormLabel>Indirizzo *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -327,7 +262,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Città *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -341,7 +276,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>CAP *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -355,7 +290,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Telefono *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +304,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} value={field.value || ""} />
+                        <Input type="email" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -389,7 +324,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Nome/Ragione Sociale *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -403,7 +338,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>P.IVA/Codice Fiscale</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -417,7 +352,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem className="md:col-span-2">
                       <FormLabel>Indirizzo *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -431,7 +366,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Città *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -445,7 +380,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>CAP *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -459,7 +394,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Telefono *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -473,7 +408,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -493,7 +428,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Numero Colli *</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} {...field} />
+                        <Input type="number" min={1} {...field} value={field.value || 1} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -507,7 +442,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Peso (kg) *</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0.1} step={0.1} {...field} />
+                        <Input type="number" min={0.1} step={0.1} {...field} value={field.value || 0.1} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -521,7 +456,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Dimensioni (cm)</FormLabel>
                       <FormControl>
-                        <Input placeholder="L x A x P" {...field} />
+                        <Input placeholder="L x A x P" {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -535,7 +470,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem className="md:col-span-3">
                       <FormLabel>Descrizione Contenuto *</FormLabel>
                       <FormControl>
-                        <Textarea rows={2} {...field} />
+                        <Textarea rows={2} {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -549,7 +484,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Costo Spedizione (€)</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} step={0.01} {...field} />
+                        <Input type="number" min={0} step={0.01} {...field} value={field.value || 0} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -564,7 +499,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                       <FormLabel>Metodo di Pagamento</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
-                        defaultValue={field.value}
+                        value={field.value || "Contanti"}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -596,14 +531,12 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Valore Assicurato (€)</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} step={0.01} {...field} />
+                        <Input type="number" min={0} step={0.01} {...field} value={field.value || 0} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
-
                 
                 <FormField
                   control={form.control}
@@ -612,7 +545,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem className="md:col-span-2">
                       <FormLabel>Note Aggiuntive</FormLabel>
                       <FormControl>
-                        <Textarea rows={2} {...field} />
+                        <Textarea rows={2} {...field} value={field.value || ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
