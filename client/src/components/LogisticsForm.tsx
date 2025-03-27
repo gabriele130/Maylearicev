@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -38,8 +38,10 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
   // Create new sender profile mutation
   const createProfileMutation = useMutation({
     mutationFn: async (profile: Omit<SenderProfile, "id" | "createdAt">) => {
-      const res = await apiRequest("POST", "/api/sender-profiles", profile);
-      return res.json();
+      return apiRequest('/api/sender-profiles', {
+        method: 'POST',
+        body: JSON.stringify(profile),
+      });
     },
     onSuccess: () => {
       toast({
@@ -97,7 +99,21 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
     },
   });
 
-  // Update preview when form changes
+  // Watch form changes and update preview
+  const formValues = form.watch();
+  
+  // Aggiornamento dell'anteprima con debounce (ritardo di 500ms)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // Usa getValues per ottenere i valori attuali del form
+      const currentValues = form.getValues();
+      onFormDataChange(currentValues);
+    }, 500); // ritardo di 500ms
+    
+    return () => clearTimeout(timeoutId);
+  }, [formValues, form, onFormDataChange]);
+  
+  // Update preview when form changes (per click sul pulsante)
   const onFormChange = form.handleSubmit((data) => {
     onFormDataChange(data);
   });
