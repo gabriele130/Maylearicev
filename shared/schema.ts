@@ -62,7 +62,10 @@ export const senderProfileSchema = z.object({
   phone: z.string().min(1, "Telefono è richiesto"),
   vat: z.string().optional().nullable(),
   email: z.string().email("Email non valida").optional().nullable(),
-  createdAt: z.date().optional(),
+  createdAt: z.union([
+    z.date(),
+    z.string().transform(val => new Date(val))
+  ]).optional(),
 });
 
 export const transportFormSchema = z.object({
