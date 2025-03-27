@@ -11,3 +11,43 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Miglioramenti per la visualizzazione mobile */
+  @media (max-width: 640px) {
+    .company-logo {
+      @apply text-base;
+    }
+    
+    .print-section {
+      @apply text-[10px];
+    }
+    
+    .print-section h3 {
+      @apply text-sm;
+    }
+    
+    .print-section .text-xs {
+      @apply text-[9px];
+    }
+  }
+  
+  /* Stili per la stampa */
+  @media print {
+    .print-section {
+      @apply p-0 border-0;
+    }
+    
+    .print-hide {
+      display: none !important;
+    }
+    
+    body, html {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+}

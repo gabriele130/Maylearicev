@@ -1,10 +1,10 @@
 import { useRef } from "react";
-import { useReactToPrint } from "react-to-print";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { Printer } from "lucide-react";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -19,23 +19,22 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
   
-  // Handle print functionality
-  const handlePrint = useReactToPrint({
-    documentTitle: `Documento_Trasporto_MLD-${documentId}`,
-    // Use this function to return the reference to the printable content
-    contentRef: printRef,
-  });
+  // Handle print functionality with window.print()
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <Card className="bg-white rounded-lg shadow-md">
       <CardContent className="pt-6">
-        <div className="flex justify-between items-center mb-4 print:hidden">
+        <div className="flex justify-between items-center mb-4 print:hidden print-hide">
           <h2 className="text-xl font-semibold text-primary">Anteprima Modulo</h2>
           <Button
-            onClick={() => handlePrint()}
+            onClick={handlePrint}
             className="bg-primary text-white hover:bg-primary/90"
           >
-            Stampa
+            <Printer className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Stampa</span>
           </Button>
         </div>
 

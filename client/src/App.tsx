@@ -7,7 +7,7 @@ import Home from "@/pages/Home";
 import Archive from "@/pages/Archive";
 import Clients from "@/pages/Clients";
 import Sidebar from "@/components/Sidebar";
-import { SidebarProvider } from "@/hooks/use-sidebar";
+import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 
 function Router() {
   return (
@@ -20,11 +20,22 @@ function Router() {
   );
 }
 
-function Layout({ children }: { children: React.ReactNode }) {
+// Componente wrapper che può accedere al context
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const { state, isMobile } = useSidebar();
+  
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="md:pl-64">
+      <div 
+        className={
+          isMobile 
+            ? "pt-16" // Mobile view con top space per l'header
+            : state === "expanded"
+              ? "md:pl-64" // Desktop con sidebar espansa
+              : "md:pl-16" // Desktop con sidebar collassata
+        }
+      >
         <div className="pt-2 md:pt-0">
           {children}
         </div>
@@ -37,9 +48,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider>
-        <Layout>
+        <LayoutContent>
           <Router />
-        </Layout>
+        </LayoutContent>
         <Toaster />
       </SidebarProvider>
     </QueryClientProvider>
