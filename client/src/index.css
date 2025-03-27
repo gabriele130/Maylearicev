@@ -84,10 +84,16 @@
     margin: 0;
   }
   
+  @page :blank {
+    display: none;
+  }
+  
   body {
     margin: 0;
     padding: 0;
     width: 100%;
+    height: 100vh;
+    page-break-after: avoid;
   }
   
   /* Hide all elements except the print section */
@@ -114,6 +120,9 @@
     border: none !important;
     padding: 0.5cm !important;
     margin: 0 !important;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    max-height: 100vh;
   }
   
   /* Ensure line height is compact for better fit */
