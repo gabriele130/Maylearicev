@@ -44,7 +44,7 @@
     display: none !important;
   }
   
-  /* Nasconde tutti gli elementi eccetto quelli da stampare */
+  /* Nascondi tutti gli elementi eccetto quelli da stampare */
   body * {
     visibility: hidden;
   }
@@ -54,87 +54,104 @@
     visibility: visible;
   }
   
-  /* Nascondi elementi UI non necessari per la stampa */
-  .print-section button, 
-  .print-section .print-hide {
-    display: none !important;
+  /* Controllo pagine */
+  @page {
+    size: A4 portrait;
+    margin: 0;
   }
   
-  /* Formattazione generale della pagina A4 */
-  @page {
-    size: 21cm 29.7cm;
-    margin: 3mm;
+  /* Previene pagine extra*/
+  @page :blank {
+    display: none;
+  }
+  
+  /* Previeni avanzamento pagina */
+  html, body {
+    height: 29.7cm;
+    width: 21cm;
+    overflow: hidden !important;
+    margin: 0;
+    padding: 0;
   }
   
   /* Imposta le dimensioni del contenitore principale per adattarsi a tutto il contenuto */
   .print-section {
+    box-sizing: border-box;
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    max-height: 100%;
-    margin: 0;
-    padding: 0 !important;
-    overflow: visible;
-    page-break-inside: avoid;
-    font-size: 7pt !important;
-    transform: scale(0.65);
+    width: 21cm;
+    height: 29.7cm;
+    margin: 0 auto;
+    padding: 2mm !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    font-size: 6pt !important;
+    transform: scale(0.95);
     transform-origin: top center;
   }
   
   /* Formattazione specifica per le copie */
   .print-section > div:first-child {
-    page-break-after: avoid;
+    page-break-after: avoid !important;
     margin-bottom: 0.1cm;
     border-bottom: 1px dashed #000 !important;
     padding-bottom: 0.1cm;
   }
   
   .print-section > div:last-child {
-    page-break-before: avoid;
+    page-break-before: avoid !important;
     padding-top: 0.1cm;
+  }
+  
+  /* Dimensionamento fisso delle due sezioni */
+  .print-section > div:first-child,
+  .print-section > div:last-child {
+    max-height: 14.5cm;
+    overflow: hidden;
   }
   
   /* Icona e titolo azienda più compatti in stampa */
   .print-section .flex.items-center div.bg-primary {
-    padding: 0.1rem !important;
-    transform: scale(0.9);
+    padding: 0.05rem !important;
+    transform: scale(0.85);
   }
   
   .print-section h3.font-semibold {
-    font-size: 7pt !important;
+    font-size: 6pt !important;
     margin-bottom: 0 !important;
     line-height: 1 !important;
   }
   
   /* Riduci spaziatura tra elementi */
   .print-section .grid {
-    gap: 0.15rem !important;
+    gap: 0.1rem !important;
   }
   
   .print-section [class*="gap"] {
-    gap: 0.15rem !important;
+    gap: 0.1rem !important;
   }
   
   .print-section [class*="mb-"] {
-    margin-bottom: 0.15rem !important;
+    margin-bottom: 0.1rem !important;
   }
   
   .print-section [class*="p-"],
   .print-section [class*="px-"],
   .print-section [class*="py-"] {
-    padding: 0.1rem !important;
+    padding: 0.05rem !important;
   }
   
   /* Riduci il testo in stampa */
   .print-section [class*="text-"] {
-    font-size: 7pt !important;
-    line-height: 1.1 !important;
+    font-size: 6pt !important;
+    line-height: 1 !important;
   }
   
   /* Ridimensiona tutti i bordi e margini */
   .print-section .border {
-    border-width: 1px !important;
+    border-width: 0.5px !important;
   }
   
   /* Assicura che le card siano visualizzate correttamente */
@@ -147,16 +164,13 @@
   }
   
   .print-section .rounded {
-    border-radius: 2px !important;
+    border-radius: 1px !important;
   }
   
   body, html {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    background-color: white;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: white !important;
   }
 }

@@ -22,7 +22,43 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Handle print functionality with window.print()
   const handlePrint = () => {
     // Aggiungi istruzioni per una migliore visualizzazione di stampa
-    window.print();
+    const styles = document.createElement('style');
+    styles.innerHTML = `
+      @page { 
+        size: A4 portrait;
+        margin: 0mm !important;
+      }
+      @page :blank {
+        display: none;
+      }
+      @media print {
+        html, body {
+          width: 21cm;
+          height: 29.7cm;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+        .print-section {
+          width: 21cm;
+          height: 29.7cm;
+          transform: scale(0.95);
+          font-size: 6pt !important;
+        }
+        .print-section > div:first-child,
+        .print-section > div:last-child {
+          max-height: 14.5cm !important;
+          overflow: hidden !important;
+        }
+      }
+    `;
+    document.head.appendChild(styles);
+    
+    // Forza il rendering prima della stampa
+    setTimeout(() => {
+      window.print();
+      document.head.removeChild(styles);
+    }, 200);
   };
 
   return (
