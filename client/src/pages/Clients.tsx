@@ -60,12 +60,11 @@ export default function Clients() {
   // Create new sender profile
   const createMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
-      // Preparazione dei dati per la richiesta API
+      // Preparazione dei dati per la richiesta API - Rimuoviamo createdAt perché verrà gestito dal server
       const profileData = {
         ...data,
         vat: data.vat || null,
-        email: data.email || null,
-        createdAt: new Date()
+        email: data.email || null
       };
       
       console.log("Sending profile data:", profileData);
