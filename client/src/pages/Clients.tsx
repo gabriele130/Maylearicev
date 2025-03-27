@@ -25,10 +25,13 @@ export default function Clients() {
     resolver: zodResolver(senderProfileSchema),
     defaultValues: {
       name: "",
+      profileName: "",
       address: "",
       city: "",
       postcode: "",
       phone: "",
+      vat: "",
+      email: "",
     },
   });
 
@@ -42,12 +45,32 @@ export default function Clients() {
     queryFn: getQueryFn<SenderProfile[]>({ on401: "throw" }),
   });
 
+  // Define type for form data
+  type ProfileFormData = {
+    name: string;
+    profileName: string;
+    address: string;
+    city: string;
+    postcode: string;
+    phone: string;
+    vat: string;
+    email: string;
+  };
+
   // Create new sender profile
   const createMutation = useMutation({
-    mutationFn: async (data: Omit<SenderProfile, "id">) => {
+    mutationFn: async (data: ProfileFormData) => {
+      // Convert form data to expected API format
+      const profileData = {
+        ...data,
+        vat: data.vat || null,
+        email: data.email || null,
+        createdAt: new Date()
+      };
+      
       return apiRequest('/api/sender-profiles', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(profileData),
       });
     },
     onSuccess: () => {
@@ -92,7 +115,7 @@ export default function Clients() {
   });
 
   // Handle form submission
-  const onSubmit = (data: Omit<SenderProfile, "id">) => {
+  const onSubmit = (data: ProfileFormData) => {
     if (editingProfile) {
       // Update profile mutation would go here
       setEditingProfile(null);
@@ -106,10 +129,13 @@ export default function Clients() {
     setEditingProfile(profile);
     form.reset({
       name: profile.name,
+      profileName: profile.profileName,
       address: profile.address,
       city: profile.city,
       postcode: profile.postcode,
       phone: profile.phone,
+      vat: profile.vat || "",
+      email: profile.email || "",
     });
     setIsAddDialogOpen(true);
   };
@@ -119,10 +145,13 @@ export default function Clients() {
     setEditingProfile(null);
     form.reset({
       name: "",
+      profileName: "",
       address: "",
       city: "",
       postcode: "",
       phone: "",
+      vat: "",
+      email: "",
     });
     setIsAddDialogOpen(true);
   };
@@ -198,6 +227,9 @@ export default function Clients() {
             <DialogTitle>
               {editingProfile ? "Modifica Cliente" : "Aggiungi Nuovo Cliente"}
             </DialogTitle>
+            <div className="text-sm text-muted-foreground">
+              Inserisci i dettagli del cliente per salvarlo nel sistema
+            </div>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -209,6 +241,19 @@ export default function Clients() {
                     <FormLabel>Nome / Azienda</FormLabel>
                     <FormControl>
                       <Input placeholder="Nome o ragione sociale" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="profileName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome del profilo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome identificativo del profilo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -263,6 +308,32 @@ export default function Clients() {
                     <FormLabel>Telefono</FormLabel>
                     <FormControl>
                       <Input placeholder="Numero di telefono" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="vat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Partita IVA (opzionale)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Partita IVA o Codice Fiscale" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email (opzionale)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Indirizzo email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
