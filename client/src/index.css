@@ -105,10 +105,10 @@
   
   .print-section {
     position: absolute;
-    top: 1.5cm; /* Alzato leggermente il modulo */
+    top: 0; /* Posizionato il modulo in cima alla pagina */
     left: -10%;
     width: 120%;
-    transform: scale(0.85); /* Aumentato la scala per occupare più spazio */
+    transform: scale(0.85); /* Mantenuta la scala attuale */
     transform-origin: top center;
     box-shadow: none !important;
     border: none !important;
