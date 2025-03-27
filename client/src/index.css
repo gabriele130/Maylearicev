@@ -72,11 +72,11 @@
     position: relative;
     width: 100%;
     padding: 0.2cm !important;
-    font-size: 8pt !important;
-    line-height: 1.2 !important;
-    transform: scale(0.90);
+    font-size: 7pt !important;
+    line-height: 1.1 !important;
+    transform: scale(0.88);
     transform-origin: top center;
-    margin-top: -2.5cm !important;
+    margin-top: -3.5cm !important;
   }
   
   /* Visibilità corretta */
@@ -101,17 +101,17 @@
   
   /* Icona e intestazioni */
   .print-section h3 {
-    font-size: 10pt !important;
+    font-size: 8pt !important;
     margin-bottom: 0.1cm !important;
   }
   
   .print-section .text-xs {
-    font-size: 7pt !important;
+    font-size: 6pt !important;
     line-height: 1.1 !important;
   }
   
   .print-section .text-sm {
-    font-size: 8pt !important;
+    font-size: 7pt !important;
   }
   
   /* Spaziatura */
