@@ -42,6 +42,34 @@
       display: none !important;
     }
     
+    /* Nasconde tutti gli elementi eccetto quelli da stampare */
+    body * {
+      visibility: hidden;
+    }
+    
+    /* Mostra solo il contenuto del dialogo */
+    [role="dialog"] * {
+      visibility: visible;
+    }
+    
+    /* Nasconde header e bottoni nel dialogo durante la stampa */
+    [role="dialog"] [data-state] header,
+    [role="dialog"] [data-state] button {
+      display: none !important;
+    }
+    
+    /* Posiziona il contenuto del dialogo a schermo intero */
+    [role="dialog"] [data-state] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 1rem;
+      overflow: visible;
+    }
+    
     body, html {
       width: 100%;
       margin: 0;
