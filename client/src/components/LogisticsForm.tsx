@@ -167,7 +167,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         <h2 className="text-xl font-semibold text-primary mb-6">Inserimento Dati di Trasporto</h2>
         
         <Form {...form}>
-          <form onChange={onFormChange} className="space-y-6">
+          <form className="space-y-6">
             {/* Saved Profiles Section */}
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex flex-wrap items-center gap-3 mb-3">
@@ -563,7 +563,8 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
               <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-500">* Campi obbligatori</p>
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={onFormChange}
                   className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-6"
                 >
                   Aggiorna Anteprima
