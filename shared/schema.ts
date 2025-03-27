@@ -11,10 +11,13 @@ export const users = pgTable("users", {
 export const senderProfiles = pgTable("sender_profiles", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  profileName: text("profile_name").notNull(),
   address: text("address").notNull(),
   city: text("city").notNull(),
   postcode: text("postcode").notNull(),
   phone: text("phone").notNull(),
+  vat: text("vat"),
+  email: text("email"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -52,10 +55,13 @@ export const insertSenderProfileSchema = createInsertSchema(senderProfiles).omit
 export const senderProfileSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
+  profileName: z.string().min(1, "Nome del profilo è richiesto"),
   address: z.string().min(1, "Indirizzo è richiesto"),
   city: z.string().min(1, "Città è richiesta"),
   postcode: z.string().min(1, "CAP è richiesto"),
   phone: z.string().min(1, "Telefono è richiesto"),
+  vat: z.string().optional().nullable(),
+  email: z.string().email("Email non valida").optional().nullable(),
   createdAt: z.date().optional(),
 });
 
@@ -67,6 +73,8 @@ export const transportFormSchema = z.object({
     city: z.string().min(1, "Città è richiesta"),
     postcode: z.string().min(1, "CAP è richiesto"),
     phone: z.string().min(1, "Telefono è richiesto"),
+    vat: z.string().optional(),
+    email: z.string().email("Email non valida").optional(),
   }),
   package: z.object({
     count: z.coerce.number().min(1, "Numero Colli deve essere almeno 1"),
@@ -74,6 +82,7 @@ export const transportFormSchema = z.object({
     dimensions: z.string().optional(),
     content: z.string().min(1, "Descrizione contenuto è richiesta"),
     shippingCost: z.coerce.number().min(0, "Il costo di spedizione non può essere negativo").optional(),
+    paymentMethod: z.enum(["Contanti", "Carta", "Bonifico", "Contrassegno"]).default("Contanti"),
   }),
   insurance: z.object({
     value: z.coerce.number().min(0, "Il valore assicurato non può essere negativo").optional(),
