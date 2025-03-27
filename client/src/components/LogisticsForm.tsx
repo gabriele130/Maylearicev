@@ -31,16 +31,25 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
   const [saveSenderProfile, setSaveSenderProfile] = useState(false);
 
   // Get saved sender profiles
-  const { data: senderProfiles = [], isLoading: isLoadingProfiles } = useQuery({
+  const { data: senderProfiles = [] as SenderProfile[], isLoading: isLoadingProfiles } = useQuery<SenderProfile[]>({
     queryKey: ['/api/sender-profiles'],
   });
 
   // Create new sender profile mutation
   const createProfileMutation = useMutation({
     mutationFn: async (profile: Omit<SenderProfile, "id" | "createdAt">) => {
+      // Assicurati che vat ed email siano null e non undefined
+      const sanitizedProfile = {
+        ...profile,
+        vat: profile.vat || null,
+        email: profile.email || null
+      };
+      
+      console.log("Sending profile data:", sanitizedProfile);
+      
       return apiRequest('/api/sender-profiles', {
         method: 'POST',
-        body: JSON.stringify(profile),
+        body: JSON.stringify(sanitizedProfile),
       });
     },
     onSuccess: () => {
@@ -89,6 +98,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         dimensions: "",
         content: "",
         shippingCost: 0,
+        paymentMethod: "Contanti",
       },
       insurance: {
         value: 0,
@@ -280,7 +290,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>P.IVA/Codice Fiscale</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -350,7 +360,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -532,6 +542,33 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                       <FormControl>
                         <Input type="number" min={0} step={0.01} {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="package.paymentMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Metodo di Pagamento</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona metodo di pagamento" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Contanti">Contanti</SelectItem>
+                          <SelectItem value="Carta">Carta</SelectItem>
+                          <SelectItem value="Bonifico">Bonifico</SelectItem>
+                          <SelectItem value="Contrassegno">Contrassegno</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
