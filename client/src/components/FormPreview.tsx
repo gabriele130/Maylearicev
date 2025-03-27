@@ -86,34 +86,33 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
 
-            {/* Package Details (Company Copy) */}
-            <div className="border border-gray-300 rounded p-2 mb-4">
-              <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DETTAGLI SPEDIZIONE</h4>
-              <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                <div>
-                  <p className="font-semibold">N. Colli</p>
-                  <p>{formData.package.count || 1}</p>
+            {/* Package Details and Insurance (Company Copy) */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DETTAGLI SPEDIZIONE</h4>
+                <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                  <div>
+                    <p className="font-semibold">N. Colli</p>
+                    <p>{formData.package.count || 1}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Peso (kg)</p>
+                    <p>{formData.package.weight?.toLocaleString('it-IT') || "10,5"}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Dimensioni (cm)</p>
+                    <p>{formData.package.dimensions || "30x20x15"}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">Peso (kg)</p>
-                  <p>{formData.package.weight?.toLocaleString('it-IT') || "10,5"}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Dimensioni (cm)</p>
-                  <p>{formData.package.dimensions || "30x20x15"}</p>
+                <div className="text-xs">
+                  <p className="font-semibold">Contenuto</p>
+                  <p>{formData.package.content || "Descrizione del contenuto del pacco"}</p>
                 </div>
               </div>
-              <div className="text-xs">
-                <p className="font-semibold">Contenuto</p>
-                <p>{formData.package.content || "Descrizione del contenuto del pacco"}</p>
-              </div>
-            </div>
-
-            {/* Insurance and Notes (Company Copy) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">ASSICURAZIONE</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-2 text-xs mb-2">
                   <div>
                     <p className="font-semibold">Valore Assicurato</p>
                     <p>€ {formData.insurance.value?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}</p>
@@ -123,10 +122,10 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                     <p>{currentDate}</p>
                   </div>
                 </div>
-              </div>
-              <div className="border border-gray-300 rounded p-2">
-                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">NOTE</h4>
-                <p className="text-xs">{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
+                <div className="text-xs">
+                  <p className="font-semibold">Note</p>
+                  <p>{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
+                </div>
               </div>
             </div>
             
@@ -229,34 +228,33 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
 
-            {/* Package Details (Client Copy) */}
-            <div className="border border-gray-300 rounded p-2 mb-4">
-              <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DETTAGLI SPEDIZIONE</h4>
-              <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                <div>
-                  <p className="font-semibold">N. Colli</p>
-                  <p>{formData.package.count || 1}</p>
+            {/* Package Details and Insurance (Client Copy) */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DETTAGLI SPEDIZIONE</h4>
+                <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                  <div>
+                    <p className="font-semibold">N. Colli</p>
+                    <p>{formData.package.count || 1}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Peso (kg)</p>
+                    <p>{formData.package.weight?.toLocaleString('it-IT') || "10,5"}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Dimensioni (cm)</p>
+                    <p>{formData.package.dimensions || "30x20x15"}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">Peso (kg)</p>
-                  <p>{formData.package.weight?.toLocaleString('it-IT') || "10,5"}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Dimensioni (cm)</p>
-                  <p>{formData.package.dimensions || "30x20x15"}</p>
+                <div className="text-xs">
+                  <p className="font-semibold">Contenuto</p>
+                  <p>{formData.package.content || "Descrizione del contenuto del pacco"}</p>
                 </div>
               </div>
-              <div className="text-xs">
-                <p className="font-semibold">Contenuto</p>
-                <p>{formData.package.content || "Descrizione del contenuto del pacco"}</p>
-              </div>
-            </div>
-
-            {/* Insurance and Notes (Client Copy) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">ASSICURAZIONE</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-2 text-xs mb-2">
                   <div>
                     <p className="font-semibold">Valore Assicurato</p>
                     <p>€ {formData.insurance.value?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}</p>
@@ -266,10 +264,10 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                     <p>{currentDate}</p>
                   </div>
                 </div>
-              </div>
-              <div className="border border-gray-300 rounded p-2">
-                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">NOTE</h4>
-                <p className="text-xs">{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
+                <div className="text-xs">
+                  <p className="font-semibold">Note</p>
+                  <p>{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
+                </div>
               </div>
             </div>
             
