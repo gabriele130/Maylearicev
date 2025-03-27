@@ -60,13 +60,15 @@ export default function Clients() {
   // Create new sender profile
   const createMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
-      // Convert form data to expected API format
+      // Preparazione dei dati per la richiesta API
       const profileData = {
         ...data,
         vat: data.vat || null,
         email: data.email || null,
         createdAt: new Date()
       };
+      
+      console.log("Sending profile data:", profileData);
       
       return apiRequest('/api/sender-profiles', {
         method: 'POST',

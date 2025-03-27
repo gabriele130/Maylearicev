@@ -60,19 +60,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new sender profile
   app.post("/api/sender-profiles", async (req, res) => {
     try {
+      console.log("Received profile data:", JSON.stringify(req.body));
+      
       // First use the user-facing schema to validate basic format
-      const userProfileData = senderProfileSchema.parse(req.body);
+      const userProfileData = senderProfileSchema.parse({
+        ...req.body,
+        // Assicuriamoci che i campi opzionali siano gestiti correttamente
+        vat: req.body.vat || null,
+        email: req.body.email || null
+      });
       
       // Then prepare data for database insert - using insertSenderProfileSchema ensures correct types
+      // Creiamo il profilo con i tipi corretti
       const dbProfileData = {
         name: userProfileData.name,
         profileName: userProfileData.profileName,
-        vat: userProfileData.vat || null, 
+        vat: userProfileData.vat as string | null, 
         address: userProfileData.address,
         city: userProfileData.city,
         postcode: userProfileData.postcode,
         phone: userProfileData.phone,
-        email: userProfileData.email || null,
+        email: userProfileData.email as string | null,
         createdAt: new Date()
       };
       
@@ -83,6 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
+        console.error("Validation error:", validationError.message);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error creating sender profile:", error);
