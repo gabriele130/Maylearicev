@@ -152,6 +152,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If the user wants to save the sender profile, do it
       if (formData.saveSender && formData.sender) {
         try {
+          // Check if we have a provided profile name
+          const profileName = formData.profileName || `${formData.sender.name} (${formData.sender.address})`;
+          
           // Check if profile already exists by matching name and address
           const existingProfiles = await storage.getAllSenderProfiles();
           const exists = existingProfiles.some(
@@ -161,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!exists) {
             await storage.createSenderProfile({
               name: formData.sender.name,
-              profileName: `${formData.sender.name} (${formData.sender.address})`,
+              profileName: profileName,
               address: formData.sender.address,
               city: formData.sender.city,
               postcode: formData.sender.postcode,
