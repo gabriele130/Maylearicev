@@ -90,16 +90,25 @@
     width: 100%;
   }
   
+  /* Hide all elements except the print section */
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-section, .print-section * {
+    visibility: visible !important;
+  }
+  
   .print-hide, .print\:hidden {
     display: none !important;
   }
   
   .print-section {
     position: absolute;
-    top: -3.6cm; /* Adjusted negative top margin */
+    top: -3.5cm; /* Adjusted negative top margin */
     left: -25%;
     width: 150%;
-    transform: scale(0.82); /* Further decreased scale for better fit */
+    transform: scale(0.82); /* Scale for better fit */
     transform-origin: top center;
     box-shadow: none !important;
     border: none !important;
