@@ -177,10 +177,19 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
       return;
     }
     
-    // Create profile object
-    const profileData = {
-      ...senderData,
+    // Create profile object - rimuovi tutti i campi che non servono al server
+    const { createdAt, id, ...cleanSenderData } = senderData;
+    
+    // Assicurati che i tipi del profilo corrispondano esattamente a quelli attesi da InsertSenderProfile
+    const profileData: Omit<SenderProfile, "id" | "createdAt"> = {
+      name: cleanSenderData.name,
       profileName,
+      address: cleanSenderData.address,
+      city: cleanSenderData.city,
+      postcode: cleanSenderData.postcode,
+      phone: cleanSenderData.phone,
+      vat: cleanSenderData.vat || null,
+      email: cleanSenderData.email || null
     };
     
     // Save profile

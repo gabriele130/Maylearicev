@@ -14,6 +14,7 @@ export interface IStorage {
   getAllSenderProfiles(): Promise<SenderProfile[]>;
   getSenderProfile(id: number): Promise<SenderProfile | undefined>;
   createSenderProfile(profile: Omit<SenderProfile, "id">): Promise<SenderProfile>;
+  updateSenderProfile(id: number, profile: Omit<SenderProfile, "id" | "createdAt">): Promise<SenderProfile | undefined>;
   deleteSenderProfile(id: number): Promise<boolean>;
   
   // Transport document methods
@@ -75,6 +76,28 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return savedProfile;
+  }
+
+  async updateSenderProfile(id: number, profile: Omit<SenderProfile, "id" | "createdAt">): Promise<SenderProfile | undefined> {
+    try {
+      // Handle nullable fields properly
+      const dbProfile = {
+        ...profile,
+        vat: profile.vat || null,
+        email: profile.email || null
+      };
+      
+      const [updatedProfile] = await db
+        .update(senderProfiles)
+        .set(dbProfile)
+        .where(eq(senderProfiles.id, id))
+        .returning();
+      
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error updating sender profile:", error);
+      throw error;
+    }
   }
 
   async deleteSenderProfile(id: number): Promise<boolean> {

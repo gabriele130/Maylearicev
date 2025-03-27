@@ -135,10 +135,46 @@ export default function Clients() {
     },
   });
 
+  // Update sender profile mutation
+  const updateMutation = useMutation({
+    mutationFn: async (data: { id: number, profileData: ProfileFormData }) => {
+      // Assicurati che i campi opzionali siano null se non presenti
+      const profileData = {
+        ...data.profileData,
+        vat: data.profileData.vat || null,
+        email: data.profileData.email || null
+      };
+      
+      return apiRequest(`/api/sender-profiles/${data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
+      toast({
+        title: "Cliente aggiornato",
+        description: "Il cliente è stato aggiornato con successo.",
+      });
+      setIsAddDialogOpen(false);
+      form.reset();
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante l'aggiornamento. Riprova.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle form submission
   const onSubmit = (data: ProfileFormData) => {
     if (editingProfile) {
-      // Update profile mutation would go here
+      updateMutation.mutate({ 
+        id: editingProfile.id, 
+        profileData: data 
+      });
       setEditingProfile(null);
     } else {
       createMutation.mutate(data);

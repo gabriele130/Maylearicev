@@ -99,6 +99,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update a sender profile
+  app.put("/api/sender-profiles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      console.log("Updating profile with ID:", id);
+      console.log("Received update data:", JSON.stringify(req.body));
+      
+      // Validate the input data
+      const userProfileData = senderProfileSchema.parse({
+        ...req.body,
+        vat: req.body.vat || null,
+        email: req.body.email || null
+      });
+      
+      // Prepare data for database update
+      const dbProfileData = {
+        name: userProfileData.name,
+        profileName: userProfileData.profileName,
+        address: userProfileData.address,
+        city: userProfileData.city,
+        postcode: userProfileData.postcode,
+        phone: userProfileData.phone,
+        vat: userProfileData.vat, 
+        email: userProfileData.email
+      };
+      
+      // Update in storage
+      const updatedProfile = await storage.updateSenderProfile(id, dbProfileData);
+      if (!updatedProfile) {
+        return res.status(404).json({ message: "Sender profile not found" });
+      }
+      
+      res.json(updatedProfile);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        console.error("Validation error:", validationError.message);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error updating sender profile:", error);
+      res.status(500).json({ message: "Failed to update sender profile" });
+    }
+  });
+
   // Delete a sender profile
   app.delete("/api/sender-profiles/:id", async (req, res) => {
     try {
