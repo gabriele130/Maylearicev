@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -19,6 +19,15 @@ export const senderProfiles = pgTable("sender_profiles", {
   phone: text("phone").notNull(),
   email: text("email"),
   createdAt: text("created_at").notNull(),
+});
+
+export const transportDocuments = pgTable("transport_documents", {
+  id: serial("id").primaryKey(),
+  documentId: text("document_id").notNull().unique(),
+  formData: jsonb("form_data").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  shareToken: text("share_token").notNull().unique(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -64,11 +73,15 @@ export const transportFormSchema = z.object({
   }),
   insurance: z.object({
     value: z.coerce.number().min(0, "Il valore assicurato non può essere negativo").optional(),
-    deliveryDate: z.string().optional(),
     notes: z.string().optional(),
   }),
   saveSender: z.boolean().optional(),
   profileName: z.string().optional(),
+});
+
+export const insertTransportDocumentSchema = createInsertSchema(transportDocuments).omit({
+  id: true,
+  createdAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -76,3 +89,5 @@ export type User = typeof users.$inferSelect;
 export type InsertSenderProfile = z.infer<typeof insertSenderProfileSchema>;
 export type SenderProfile = typeof senderProfiles.$inferSelect;
 export type TransportFormData = z.infer<typeof transportFormSchema>;
+export type InsertTransportDocument = z.infer<typeof insertTransportDocumentSchema>;
+export type TransportDocument = typeof transportDocuments.$inferSelect;

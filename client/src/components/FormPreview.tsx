@@ -16,13 +16,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Generate random document number
   const documentId = Math.floor(Math.random() * 9000) + 1000;
   
-  // Get current date
+  // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
-  
-  // Format delivery date if present
-  const deliveryDate = formData.insurance.deliveryDate 
-    ? format(new Date(formData.insurance.deliveryDate), "dd/MM/yyyy", { locale: it })
-    : "";
   
   // Handle print functionality
   const handlePrint = useReactToPrint({
@@ -124,8 +119,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                     <p>€ {formData.insurance.value?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}</p>
                   </div>
                   <div>
-                    <p className="font-semibold">Consegna Prevista</p>
-                    <p>{deliveryDate || "15/11/2023"}</p>
+                    <p className="font-semibold">Data Documento</p>
+                    <p>{currentDate}</p>
                   </div>
                 </div>
               </div>
@@ -250,8 +245,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                     <p>€ {formData.insurance.value?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}</p>
                   </div>
                   <div>
-                    <p className="font-semibold">Consegna Prevista</p>
-                    <p>{deliveryDate || "15/11/2023"}</p>
+                    <p className="font-semibold">Data Documento</p>
+                    <p>{currentDate}</p>
                   </div>
                 </div>
               </div>
@@ -305,18 +300,15 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               <p className="text-[9px] text-gray-700 leading-tight">
                 Il mittente dichiara di accettare le condizioni generali di trasporto affisse presso gli uffici Maylea Logistics & Transport. La responsabilità vettoriale è limitata 
                 a 1 € al kg di merce trasportata moltiplicata per il peso lordo della merce danneggiata o smarrita (Art. 1696 c.c.). 
-                Maggiore responsabilità potrà essere assunta dal vettore solo mediante specifica pattuizione scritta e previo pagamento del corrispettivo supplementare.
-                Il mittente è responsabile della natura della merce e di tutte le relative documentazioni e adempimenti previsti ai fini doganali e/o fiscali.
+                Maggiore responsabilità potrà essere assunta dal vettore solo mediante specifica pattuizione scritta e previo pagamento del corrispettivo supplementare per la copertura assicurativa.
               </p>
             </div>
-
-            {/* Signature Section */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="border-t border-gray-300 pt-2">
-                <p className="text-xs text-center">Firma Mittente</p>
-              </div>
-              <div className="border-t border-gray-300 pt-2">
-                <p className="text-xs text-center">Firma Destinatario</p>
+            
+            {/* Recipient Signature */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-xs font-semibold">Per MAYLEA Logistics & Transport</p>
+                <div className="mt-2 border-b border-gray-400 h-8"></div>
               </div>
             </div>
           </div>

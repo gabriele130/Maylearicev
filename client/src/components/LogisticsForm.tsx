@@ -90,7 +90,6 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
       },
       insurance: {
         value: 0,
-        deliveryDate: "",
         notes: "",
       },
       saveSender: false,
@@ -542,19 +541,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                   )}
                 />
                 
-                <FormField
-                  control={form.control}
-                  name="insurance.deliveryDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data Consegna Prevista</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 
                 <FormField
                   control={form.control}
