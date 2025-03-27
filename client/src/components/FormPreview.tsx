@@ -168,21 +168,21 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
 
-            {/* Disclaimer (Company Copy) */}
-            <div className="border border-gray-300 rounded p-2 mb-4">
-              <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
-              <p className="text-[9px] text-gray-700 leading-tight">
-                Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati. Per ulteriori informazioni sulle limitazioni di responsabilità e procedure di reclamo, consultare il sito web o contattare il servizio clienti.
-              </p>
-            </div>
-            
-            {/* Signature (Company Copy) */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border-t border-gray-400 pt-2">
-                <p className="text-xs font-semibold">Firma per Accettazione</p>
-                <div className="h-8"></div>
+            {/* Disclaimer and Signature (Company Copy) */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
+                <p className="text-[9px] text-gray-700 leading-tight">
+                  Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati.
+                </p>
               </div>
-              <div></div>
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">FIRMA PER ACCETTAZIONE</h4>
+                <div className="flex flex-col justify-between h-[60px]">
+                  <p className="text-[9px] text-gray-700 mb-2">Il mittente riconosce e accetta le condizioni di trasporto.</p>
+                  <div className="border-t border-gray-400 pt-1 mt-auto"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -311,21 +311,21 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
             
-            {/* Legal Disclaimer */}
-            <div className="border border-gray-300 rounded p-2 mb-4">
-              <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
-              <p className="text-[9px] text-gray-700 leading-tight">
-                Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati. Per ulteriori informazioni sulle limitazioni di responsabilità e procedure di reclamo, consultare il sito web o contattare il servizio clienti.
-              </p>
-            </div>
-            
-            {/* Signature (Client Copy) */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border-t border-gray-400 pt-2">
-                <p className="text-xs font-semibold">Firma per Accettazione</p>
-                <div className="h-8"></div>
+            {/* Disclaimer and Signature (Client Copy) */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
+                <p className="text-[9px] text-gray-700 leading-tight">
+                  Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati.
+                </p>
               </div>
-              <div></div>
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">FIRMA PER ACCETTAZIONE</h4>
+                <div className="flex flex-col justify-between h-[60px]">
+                  <p className="text-[9px] text-gray-700 mb-2">Il mittente riconosce e accetta le condizioni di trasporto.</p>
+                  <div className="border-t border-gray-400 pt-1 mt-auto"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
