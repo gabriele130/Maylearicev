@@ -73,23 +73,30 @@ export const transportFormSchema = z.object({
     city: z.string().min(1, "Città è richiesta"),
     postcode: z.string().min(1, "CAP è richiesto"),
     phone: z.string().min(1, "Telefono è richiesto"),
-    vat: z.string().optional(),
-    email: z.string().email("Email non valida").optional(),
+    vat: z.string().optional().nullable(),
+    email: z.string().email("Email non valida").optional().nullable(),
   }),
   package: z.object({
     count: z.coerce.number().min(1, "Numero Colli deve essere almeno 1"),
     weight: z.coerce.number().min(0.1, "Peso deve essere maggiore di 0"),
-    dimensions: z.string().optional(),
+    dimensions: z.string().optional().nullable(),
     content: z.string().min(1, "Descrizione contenuto è richiesta"),
-    shippingCost: z.coerce.number().min(0, "Il costo di spedizione non può essere negativo").optional(),
-    paymentMethod: z.enum(["Contanti", "Carta", "Bonifico", "Contrassegno"]).default("Contanti").optional(),
+    shippingCost: z.union([
+      z.coerce.number().min(0, "Il costo di spedizione non può essere negativo"),
+      z.string().transform(val => {
+        // Rimuovi caratteri non numerici e converti a numero
+        const numVal = Number(val.replace(/[^\d.-]/g, ''));
+        return isNaN(numVal) ? 0 : numVal;
+      })
+    ]).optional().nullable(),
+    paymentMethod: z.enum(["Contanti", "Carta", "Bonifico", "Contrassegno"]).default("Contanti").optional().nullable(),
   }),
   insurance: z.object({
-    value: z.coerce.number().min(0, "Il valore assicurato non può essere negativo").optional(),
-    notes: z.string().optional(),
+    value: z.coerce.number().min(0, "Il valore assicurato non può essere negativo").optional().nullable(),
+    notes: z.string().optional().nullable(),
   }),
-  saveSender: z.boolean().optional(),
-  profileName: z.string().optional(),
+  saveSender: z.boolean().optional().default(false),
+  profileName: z.string().optional().nullable(),
 });
 
 export const insertTransportDocumentSchema = createInsertSchema(transportDocuments).omit({

@@ -66,8 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userProfileData = senderProfileSchema.parse({
         ...req.body,
         // Assicuriamoci che i campi opzionali siano gestiti correttamente
-        vat: req.body.vat || null,
-        email: req.body.email || null
+        vat: req.body.vat === undefined ? null : req.body.vat,
+        email: req.body.email === undefined ? null : req.body.email
       });
       
       // Then prepare data for database insert - using insertSenderProfileSchema ensures correct types
@@ -113,8 +113,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate the input data
       const userProfileData = senderProfileSchema.parse({
         ...req.body,
-        vat: req.body.vat || null,
-        email: req.body.email || null
+        vat: req.body.vat === undefined ? null : req.body.vat,
+        email: req.body.email === undefined ? null : req.body.email
       });
       
       // Prepare data for database update
@@ -125,8 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         city: userProfileData.city,
         postcode: userProfileData.postcode,
         phone: userProfileData.phone,
-        vat: userProfileData.vat, 
-        email: userProfileData.email
+        vat: userProfileData.vat === undefined ? null : userProfileData.vat, 
+        email: userProfileData.email === undefined ? null : userProfileData.email
       };
       
       // Update in storage
@@ -230,8 +230,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               city: formData.sender.city,
               postcode: formData.sender.postcode,
               phone: formData.sender.phone,
-              vat: formData.sender.vat || null,
-              email: formData.sender.email || null,
+              vat: formData.sender.vat === undefined ? null : formData.sender.vat,
+              email: formData.sender.email === undefined ? null : formData.sender.email,
               createdAt: new Date()
             });
           }
