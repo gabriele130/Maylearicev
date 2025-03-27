@@ -71,9 +71,9 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex gap-4 mb-4">
               {/* Sender Info (Company Copy) */}
-              <div className="border border-gray-300 rounded p-2">
+              <div className="border border-gray-300 rounded p-2 flex-1">
                 <h4 className="text-[11px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MITTENTE</h4>
                 <p className="text-[13px] font-medium">{formData.sender.name || "Nome Mittente"}</p>
                 <p className="text-[11px]">{formData.sender.address || "Via Esempio, 123"}</p>
@@ -82,7 +82,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
 
               {/* Recipient Info (Company Copy) */}
-              <div className="border border-gray-300 rounded p-2">
+              <div className="border border-gray-300 rounded p-2 flex-1">
                 <h4 className="text-[11px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DESTINATARIO</h4>
                 <p className="text-[13px] font-medium">{formData.recipient.name || "Nome Destinatario"}</p>
                 <p className="text-[11px]">{formData.recipient.address || "Via Destinazione, 456"}</p>
@@ -217,9 +217,9 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex gap-4 mb-4">
               {/* Sender Info (Client Copy) */}
-              <div className="border border-gray-300 rounded p-2">
+              <div className="border border-gray-300 rounded p-2 flex-1">
                 <h4 className="text-[11px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MITTENTE</h4>
                 <p className="text-[13px] font-medium">{formData.sender.name || "Nome Mittente"}</p>
                 <p className="text-[11px]">{formData.sender.address || "Via Esempio, 123"}</p>
@@ -228,7 +228,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               </div>
 
               {/* Recipient Info (Client Copy) */}
-              <div className="border border-gray-300 rounded p-2">
+              <div className="border border-gray-300 rounded p-2 flex-1">
                 <h4 className="text-[11px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">DESTINATARIO</h4>
                 <p className="text-[13px] font-medium">{formData.recipient.name || "Nome Destinatario"}</p>
                 <p className="text-[11px]">{formData.recipient.address || "Via Destinazione, 456"}</p>
