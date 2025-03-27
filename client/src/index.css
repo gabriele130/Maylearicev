@@ -46,7 +46,7 @@
   /* Controllare pagina A4 */
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 0.5cm;
   }
   
   /* Nasconde la pagina vuota */
@@ -55,8 +55,8 @@
   }
   
   html, body {
-    width: 21cm;
-    height: 29.7cm;
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -70,12 +70,12 @@
   .print-section {
     box-sizing: border-box;
     position: relative;
-    width: 21cm;
-    height: 29.7cm;
-    margin: 0 auto;
-    padding: 1cm !important;
-    font-size: 10pt !important;
-    line-height: 1.3 !important;
+    width: 100%;
+    padding: 0.2cm !important;
+    font-size: 8pt !important;
+    line-height: 1.2 !important;
+    transform: scale(0.98);
+    transform-origin: top center;
   }
   
   /* Visibilità corretta */
@@ -89,37 +89,42 @@
   
   /* Regole per le copie */
   .print-section > div:first-child {
-    margin-bottom: 1.5cm;
-    padding-bottom: 0.5cm;
+    margin-bottom: 0.8cm;
+    padding-bottom: 0.3cm;
     border-bottom: 1px dashed black !important;
   }
   
   .print-section > div:last-child {
-    padding-top: 0.5cm;
+    padding-top: 0.3cm;
   }
   
   /* Icona e intestazioni */
   .print-section h3 {
-    font-size: 14pt !important;
-    margin-bottom: 0.3cm !important;
+    font-size: 10pt !important;
+    margin-bottom: 0.1cm !important;
   }
   
   .print-section .text-xs {
-    font-size: 9pt !important;
-    line-height: 1.2 !important;
+    font-size: 7pt !important;
+    line-height: 1.1 !important;
   }
   
   .print-section .text-sm {
-    font-size: 11pt !important;
+    font-size: 8pt !important;
   }
   
   /* Spaziatura */
   .print-section .grid {
-    gap: 0.5cm !important;
+    gap: 0.2cm !important;
   }
   
   .print-section [class*="mb-"] {
-    margin-bottom: 0.5cm !important;
+    margin-bottom: 0.2cm !important;
+  }
+  
+  .print-section .p-2,
+  .print-section .p-4 {
+    padding: 0.2cm !important;
   }
   
   /* Stile bordi */
@@ -129,6 +134,12 @@
   
   .print-section .bg-gray-100 {
     background-color: #f3f4f6 !important;
-    padding: 0.2cm !important;
+    padding: 0.1cm !important;
+  }
+  
+  /* Evita che il contenuto venga tagliato */
+  .print-section > div:first-child,
+  .print-section > div:last-child {
+    page-break-inside: avoid !important;
   }
 }
