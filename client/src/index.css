@@ -74,9 +74,9 @@
     padding: 0.2cm !important;
     font-size: 8pt !important;
     line-height: 1.2 !important;
-    transform: scale(0.95);
+    transform: scale(0.93);
     transform-origin: top center;
-    margin-top: -0.5cm !important;
+    margin-top: -1.5cm !important;
   }
   
   /* Visibilità corretta */
