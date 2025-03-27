@@ -5,6 +5,7 @@ import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Printer } from "lucide-react";
+import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -48,7 +49,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
                 <div className="p-1 rounded">
-                  <span className="font-bold text-2xl text-[#40280a]" style={{fontFamily: 'Arial, sans-serif'}}>MAYLEA</span>
+                  <img 
+                    src={logoPath}
+                    alt="Maylea Logistics & Transport Logo"
+                    className="h-14 w-auto" 
+                  />
                 </div>
                 <div className="ml-2">
                   <h3 className="font-semibold text-primary text-[14px]">MAYLEA – Logistics & Transport</h3>
@@ -190,7 +195,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="flex justify-between mb-4">
               <div className="flex items-center">
                 <div className="p-1 rounded">
-                  <span className="font-bold text-2xl text-[#40280a]" style={{fontFamily: 'Arial, sans-serif'}}>MAYLEA</span>
+                  <img 
+                    src={logoPath}
+                    alt="Maylea Logistics & Transport Logo"
+                    className="h-14 w-auto" 
+                  />
                 </div>
                 <div className="ml-2">
                   <h3 className="font-semibold text-primary text-[14px]">MAYLEA – Logistics & Transport</h3>

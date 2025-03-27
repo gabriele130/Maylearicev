@@ -1,147 +1,123 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --ring: 215 20.2% 65.1%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+ 
+    --ring: 217.2 32.6% 17.5%;
+  }
+}
+ 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Stili per il mobile */
-@media (max-width: 640px) {
-  .company-logo {
-    font-size: 1rem;
-  }
-  
-  .print-section {
-    font-size: 10px;
-  }
-  
-  .print-section h3 {
-    font-size: 0.875rem;
-  }
-  
-  .print-section .text-xs {
-    font-size: 9px;
-  }
-}
-
-/* Stili per la stampa */
+/* Styles for print mode */
 @media print {
-  /* Nascondi gli elementi che non devono essere stampati */
-  .print-hide, 
-  header, 
-  nav, 
-  footer, 
-  button, 
-  .card > div:first-child {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .print-hide, .print\:hidden {
     display: none !important;
   }
   
-  /* Controllare pagina A4 */
-  @page {
-    size: A4 portrait;
-    margin: 0.5cm;
-  }
-  
-  /* Nasconde la pagina vuota */
-  @page :blank {
-    display: none;
-  }
-  
-  html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: white;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    color-adjust: exact;
-  }
-  
-  /* Regole per il contenitore di stampa */
   .print-section {
-    box-sizing: border-box;
-    position: relative;
+    position: absolute;
+    top: -3.2cm; /* Adjusted negative top margin */
+    left: -25%;
     width: 150%;
-    padding: 0.2cm !important;
-    font-size: 7pt !important;
-    line-height: 1.1 !important;
     transform: scale(0.88);
     transform-origin: top center;
-    margin-top: -3.2cm !important;
-    margin-left: -25% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0.5cm !important;
+    margin: 0 !important;
   }
   
-  /* Visibilità corretta */
-  body * {
-    visibility: hidden;
-  }
-  
-  .print-section, .print-section * {
-    visibility: visible;
-  }
-  
-  /* Regole per le copie */
-  .print-section > div:first-child {
-    margin-bottom: 0.5cm;
-    padding-bottom: 0.2cm;
-    border-bottom: 1px dashed black !important;
-  }
-  
-  .print-section > div:last-child {
-    padding-top: 0.2cm;
-  }
-  
-  /* Icona e intestazioni */
-  .print-section h3 {
-    font-size: 8pt !important;
-    margin-bottom: 0.1cm !important;
-  }
-  
-  .print-section .text-xs {
-    font-size: 6pt !important;
+  /* Ensure line height is compact for better fit */
+  .print-section p, 
+  .print-section h3, 
+  .print-section h4, 
+  .print-section div {
     line-height: 1.1 !important;
   }
   
-  .print-section .text-sm {
-    font-size: 7pt !important;
-  }
-  
-  /* Spaziatura */
-  .print-section .grid {
-    gap: 0.2cm !important;
-  }
-  
-  .print-section [class*="mb-"] {
-    margin-bottom: 0.2cm !important;
-  }
-  
-  .print-section .p-2,
-  .print-section .p-4 {
-    padding: 0.2cm !important;
-  }
-  
-  /* Stile bordi */
-  .print-section .border {
-    border: 1px solid #222 !important;
-  }
-  
-  .print-section .bg-gray-100 {
-    background-color: #f3f4f6 !important;
-    padding: 0.1cm !important;
-  }
-  
-  /* Evita che il contenuto venga tagliato */
-  .print-section > div:first-child,
-  .print-section > div:last-child {
-    page-break-inside: avoid !important;
+  /* Ensure images are preserved */
+  .print-section img {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
