@@ -5,7 +5,7 @@ import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Printer } from "lucide-react";
-import logoImage from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
+import Logo from "../components/Logo";
 
 interface FormPreviewProps {
   formData: TransportFormData;
