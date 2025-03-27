@@ -26,8 +26,9 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   
   // Handle print functionality
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
     documentTitle: `Documento_Trasporto_MLD-${documentId}`,
+    // Use this function to return the reference to the printable content
+    contentRef: printRef,
   });
 
   return (
@@ -36,7 +37,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
         <div className="flex justify-between items-center mb-4 print:hidden">
           <h2 className="text-xl font-semibold text-primary">Anteprima Modulo</h2>
           <Button
-            onClick={handlePrint}
+            onClick={() => handlePrint()}
             className="bg-primary text-white hover:bg-primary/90"
           >
             Stampa
@@ -55,8 +56,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <span className="font-bold text-lg">ML&T</span>
                 </div>
                 <div className="ml-2">
-                  <h3 className="font-semibold text-primary">Maylea Logistic & Transport</h3>
-                  <p className="text-xs text-gray-600">P.IVA: 12345678901 | Tel: +39 0123 456789</p>
+                  <h3 className="font-semibold text-primary">MAYLEA – Logistics & Transport</h3>
+                  <p className="text-xs text-gray-600">C.T.D. SRL</p>
+                  <p className="text-xs text-gray-600">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
+                  <p className="text-xs text-gray-600">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
+                  <p className="text-xs text-gray-600">whatsapp: 331 3896381</p>
                 </div>
               </div>
               <div className="text-right">
@@ -111,7 +115,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             </div>
 
             {/* Insurance and Notes (Company Copy) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">ASSICURAZIONE</h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
@@ -130,6 +134,44 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 <p className="text-xs">{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
               </div>
             </div>
+            
+            {/* Payment Method and Total (Company Copy) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MODALITÀ DI PAGAMENTO</h4>
+                <div className="flex flex-wrap gap-2 text-xs mt-1">
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Contanti</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Carta</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Bonifico</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Contrassegno</span>
+                  </div>
+                </div>
+              </div>
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">IMPORTO TOTALE SPEDIZIONE</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <p className="font-semibold">Spedizione</p>
+                    <p>€ {(formData.package.shippingCost || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Totale</p>
+                    <p className="font-bold">€ {(formData.package.shippingCost || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Client Copy */}
@@ -140,8 +182,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <span className="font-bold text-lg">ML&T</span>
                 </div>
                 <div className="ml-2">
-                  <h3 className="font-semibold text-primary">Maylea Logistic & Transport</h3>
-                  <p className="text-xs text-gray-600">P.IVA: 12345678901 | Tel: +39 0123 456789</p>
+                  <h3 className="font-semibold text-primary">MAYLEA – Logistics & Transport</h3>
+                  <p className="text-xs text-gray-600">C.T.D. SRL</p>
+                  <p className="text-xs text-gray-600">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
+                  <p className="text-xs text-gray-600">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
+                  <p className="text-xs text-gray-600">whatsapp: 331 3896381</p>
                 </div>
               </div>
               <div className="text-right">
@@ -196,7 +241,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             </div>
 
             {/* Insurance and Notes (Client Copy) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">ASSICURAZIONE</h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
@@ -214,6 +259,55 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">NOTE</h4>
                 <p className="text-xs">{formData.insurance.notes || "Nessuna nota aggiuntiva"}</p>
               </div>
+            </div>
+            
+            {/* Payment Method and Total (Client Copy) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">MODALITÀ DI PAGAMENTO</h4>
+                <div className="flex flex-wrap gap-2 text-xs mt-1">
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Contanti</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Carta</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Bonifico</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-3 w-3 border border-gray-500 rounded-sm mr-1"></div>
+                    <span>Contrassegno</span>
+                  </div>
+                </div>
+              </div>
+              <div className="border border-gray-300 rounded p-2">
+                <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">IMPORTO TOTALE SPEDIZIONE</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <p className="font-semibold">Spedizione</p>
+                    <p>€ {(formData.package.shippingCost || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Totale</p>
+                    <p className="font-bold">€ {(formData.package.shippingCost || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Legal Disclaimer */}
+            <div className="border border-gray-300 rounded p-2 mb-4">
+              <h4 className="text-xs font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-2">LIMITAZIONI DI RESPONSABILITÀ</h4>
+              <p className="text-[9px] text-gray-700 leading-tight">
+                Il mittente dichiara di accettare le condizioni generali di trasporto affisse presso gli uffici Maylea Logistics & Transport. La responsabilità vettoriale è limitata 
+                a 1 € al kg di merce trasportata moltiplicata per il peso lordo della merce danneggiata o smarrita (Art. 1696 c.c.). 
+                Maggiore responsabilità potrà essere assunta dal vettore solo mediante specifica pattuizione scritta e previo pagamento del corrispettivo supplementare.
+                Il mittente è responsabile della natura della merce e di tutte le relative documentazioni e adempimenti previsti ai fini doganali e/o fiscali.
+              </p>
             </div>
 
             {/* Signature Section */}

@@ -86,6 +86,7 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         weight: 0.1,
         dimensions: "",
         content: "",
+        shippingCost: 0,
       },
       insurance: {
         value: 0,
@@ -501,6 +502,20 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                       <FormLabel>Descrizione Contenuto *</FormLabel>
                       <FormControl>
                         <Textarea rows={2} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="package.shippingCost"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Costo Spedizione (€)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={0.01} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

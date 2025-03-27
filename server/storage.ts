@@ -35,8 +35,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllSenderProfiles(): Promise<SenderProfile[]> {
-    // Sort by creation date descending (newest first)
-    return db.select().from(senderProfiles).orderBy(desc(senderProfiles.createdAt));
+    try {
+      // Sort by creation date descending (newest first)
+      console.log("Fetching all sender profiles from database");
+      const profiles = await db.select().from(senderProfiles).orderBy(desc(senderProfiles.createdAt));
+      console.log("Fetched profiles:", profiles);
+      return profiles;
+    } catch (error) {
+      console.error("Error fetching sender profiles:", error);
+      throw error;
+    }
   }
 
   async getSenderProfile(id: number): Promise<SenderProfile | undefined> {
