@@ -70,13 +70,14 @@
   .print-section {
     box-sizing: border-box;
     position: relative;
-    width: 100%;
+    width: 110%;
     padding: 0.2cm !important;
     font-size: 7pt !important;
     line-height: 1.1 !important;
     transform: scale(0.88);
     transform-origin: top center;
     margin-top: -3.5cm !important;
+    margin-left: -5% !important;
   }
   
   /* Visibilità corretta */
