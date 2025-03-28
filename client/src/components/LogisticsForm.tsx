@@ -126,15 +126,19 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
     const profileName = form.getValues("profileName") || senderData.name;
     
     try {
+      const profileData = {
+        ...senderData,
+        profileName,
+        // Gestisci correttamente email vuota
+        email: senderData.email && senderData.email.trim() !== '' ? senderData.email : null
+      };
+      
       const response = await fetch("/api/sender-profiles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...senderData,
-          profileName,
-        }),
+        body: JSON.stringify(profileData),
       });
       
       if (response.ok) {
@@ -183,15 +187,19 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
     const profileName = formValues.recipientProfileName || `${recipientData.name} (${recipientData.address})`;
     
     try {
+      const profileData = {
+        ...recipientData,
+        profileName,
+        // Gestisci correttamente email vuota
+        email: recipientData.email && recipientData.email.trim() !== '' ? recipientData.email : null
+      };
+      
       const response = await fetch("/api/recipient-profiles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...recipientData,
-          profileName,
-        }),
+        body: JSON.stringify(profileData),
       });
       
       if (response.ok) {

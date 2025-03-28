@@ -76,8 +76,8 @@ export default function Recipients() {
       // Preparazione dei dati per la richiesta API - Rimuoviamo createdAt perché verrà gestito dal server
       const profileData = {
         ...data,
-        vat: data.vat || null,
-        email: data.email || null
+        vat: data.vat && data.vat.trim() !== '' ? data.vat : null,
+        email: data.email && data.email.trim() !== '' ? data.email : null
       };
       
       console.log("Sending profile data:", profileData);
@@ -141,8 +141,8 @@ export default function Recipients() {
       // Assicurati che i campi opzionali siano null se non presenti
       const profileData = {
         ...data.profileData,
-        vat: data.profileData.vat || null,
-        email: data.profileData.email || null
+        vat: data.profileData.vat && data.profileData.vat.trim() !== '' ? data.profileData.vat : null,
+        email: data.profileData.email && data.profileData.email.trim() !== '' ? data.profileData.email : null
       };
       
       return apiRequest(`/api/recipient-profiles/${data.id}`, {

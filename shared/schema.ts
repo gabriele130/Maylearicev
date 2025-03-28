@@ -92,7 +92,11 @@ export const profileSchema = z.object({
   postcode: z.string().min(1, "CAP è richiesto"),
   phone: z.string().min(1, "Telefono è richiesto"),
   vat: z.string().optional().nullable(),
-  email: z.string().email("Email non valida").optional().nullable(),
+  email: z.union([
+    z.string().email("Email non valida"),
+    z.string().length(0),  // Accetta stringa vuota 
+    z.null(),  // Accetta null esplicitamente
+  ]).optional().nullable(),
   createdAt: z.union([
     z.date(),
     z.string().transform(val => new Date(val))
