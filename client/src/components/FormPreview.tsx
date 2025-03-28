@@ -42,7 +42,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-4 print-section text-[11px] mt-2 mx-auto"
+          className="border border-gray-300 rounded-lg p-4 print-section text-[10px] mt-2"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-6 mb-6">
