@@ -36,13 +36,13 @@ export default function FormPreview({ formData }: FormPreviewProps) {
       
       // Configura le opzioni per html2pdf
       const options = {
-        margin: [5, 5, 5, 5], // top, right, bottom, left in mm - margini ridotti
+        margin: 0, // margini ridotti al minimo
         filename: `MayleaLogistics-${documentId}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
-          scale: 1.2, // Scala ridotta ulteriormente
+          scale: 0.85, // Scala ridotta ulteriormente
           useCORS: true,
-          logging: false,
+          logging: true, // attiva i log per debug
           letterRendering: true,
           allowTaint: true,
           width: printRef.current.offsetWidth,
@@ -52,7 +52,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
           unit: 'mm', 
           format: 'a4', 
           orientation: 'portrait',
-          compress: true
+          compress: true,
+          hotfixes: ["px_scaling"]
         },
         pagebreak: { mode: 'avoid-all' }
       };
@@ -61,6 +62,15 @@ export default function FormPreview({ formData }: FormPreviewProps) {
       html2pdf()
         .from(printRef.current)
         .set(options)
+        .toPdf() // Crea il PDF
+        .get('pdf')
+        .then((pdf: any) => {
+          // Rimuovi le pagine vuote (se presenti)
+          while (pdf.internal.getNumberOfPages() > 1) {
+            pdf.deletePage(pdf.internal.getNumberOfPages());
+          }
+          return pdf;
+        })
         .save()
         .then(() => {
           // Ripristina lo stato del pulsante
