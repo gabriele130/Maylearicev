@@ -104,31 +104,35 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
+      {/* Header - Mobile optimized */}
       <header className="bg-primary text-white shadow-md print:hidden">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-semibold">Maylea Logistic & Transport</h1>
+        <div className="container mx-auto px-2 py-3 md:px-4 md:py-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div className="hidden md:flex md:items-center">
+              <h1 className="text-xl md:text-2xl font-semibold">Maylea Logistic & Transport</h1>
+            </div>
+            <nav className="flex flex-wrap justify-center w-full md:w-auto gap-2 md:gap-3">
+              <Button 
+                variant="secondary" 
+                className="text-primary flex-1 md:flex-none min-w-[140px] h-12 md:h-auto px-3 rounded-lg" 
+                onClick={handlePrint}
+              >
+                <Printer className="md:mr-2 h-5 w-5 md:h-4 md:w-4" />
+                <span className="ml-2 text-sm font-medium">Stampa</span>
+              </Button>
+              <Button
+                variant="default"
+                className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none min-w-[140px] h-12 md:h-auto px-3 rounded-lg"
+                onClick={handleSaveDocument}
+                disabled={saveDocumentMutation.isPending}
+              >
+                <Save className="md:mr-2 h-5 w-5 md:h-4 md:w-4" />
+                <span className="ml-2 text-sm font-medium">
+                  {saveDocumentMutation.isPending ? "Salvataggio..." : "Salva"}
+                </span>
+              </Button>
+            </nav>
           </div>
-          <nav className="flex gap-3">
-            <Button 
-              variant="secondary" 
-              className="text-primary" 
-              onClick={handlePrint}
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              Stampa Modulo
-            </Button>
-            <Button
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={handleSaveDocument}
-              disabled={saveDocumentMutation.isPending}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {saveDocumentMutation.isPending ? "Salvataggio..." : "Salva Documento"}
-            </Button>
-          </nav>
         </div>
       </header>
 
