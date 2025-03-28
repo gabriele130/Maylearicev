@@ -2,7 +2,7 @@ import { users, senderProfiles, recipientProfiles, transportDocuments, weightSta
 import { db } from "./db";
 import { eq, desc, lt, gte, and, count, sum, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { add, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { add, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns";
 
 // Interface definition
 export interface IStorage {
@@ -480,18 +480,18 @@ export class DatabaseStorage implements IStorage {
 
   async getWeightTrends(days: number): Promise<Array<{date: string; totalWeight: number; totalPackages: number}>> {
     try {
-      const startDate = startOfDay(add(new Date(), { days: -days }));
+      const startDate = startOfDay(subDays(new Date(), days));
       
       // Usiamo SQL grezzo per formattare la data come stringa
       const results = await db.execute(sql`
         SELECT 
-          to_char(transport_day, 'YYYY-MM-DD') as date,
+          to_char(transport_date, 'YYYY-MM-DD') as date,
           SUM(total_weight) as total_weight,
           SUM(package_count) as total_packages
         FROM weight_stats
-        WHERE transport_date >= ${startDate}
-        GROUP BY transport_day
-        ORDER BY transport_day ASC
+        WHERE transport_date >= ${startDate.toISOString()}
+        GROUP BY to_char(transport_date, 'YYYY-MM-DD')
+        ORDER BY date ASC
       `);
 
       return results.map(row => ({
@@ -514,7 +514,7 @@ export class DatabaseStorage implements IStorage {
           SUM(total_weight) as total_weight,
           COUNT(*) as count
         FROM weight_stats
-        WHERE transport_date >= ${startDate} AND transport_date < ${endDate}
+        WHERE transport_date >= ${startDate.toISOString()} AND transport_date < ${endDate.toISOString()}
         GROUP BY destination
         ORDER BY SUM(total_weight) DESC
       `);

@@ -82,11 +82,30 @@ export default function Home() {
   });
 
   const handleSaveDocument = () => {
-    // Validate form data
-    if (!formData.sender.name || !formData.recipient.name) {
+    // Validate form data - controllo più completo dei campi obbligatori
+    const errors = [];
+    
+    // Controllo campi mittente
+    if (!formData.sender.name) errors.push("Nome mittente");
+    if (!formData.sender.address) errors.push("Indirizzo mittente");
+    if (!formData.sender.city) errors.push("Città mittente");
+    if (!formData.sender.postcode) errors.push("CAP mittente");
+    if (!formData.sender.phone) errors.push("Telefono mittente");
+    
+    // Controllo campi destinatario
+    if (!formData.recipient.name) errors.push("Nome destinatario");
+    if (!formData.recipient.address) errors.push("Indirizzo destinatario");
+    if (!formData.recipient.city) errors.push("Città destinatario");
+    if (!formData.recipient.postcode) errors.push("CAP destinatario");
+    if (!formData.recipient.phone) errors.push("Telefono destinatario");
+    
+    // Controllo campi pacco
+    if (!formData.package.content) errors.push("Descrizione contenuto");
+    
+    if (errors.length > 0) {
       toast({
-        title: "Dati incompleti",
-        description: "Per favore, completa i campi obbligatori prima di salvare.",
+        title: "Campi obbligatori mancanti",
+        description: `Completa i seguenti campi: ${errors.join(", ")}`,
         variant: "destructive",
       });
       return;
