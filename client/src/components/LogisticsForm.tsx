@@ -214,8 +214,27 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
     // Get the current form values and pass them to the parent component
     const currentData = form.getValues();
     
-    // Add the saveRecipient flag based on the checkbox state
+    // Add flags based on the checkbox states
     currentData.saveRecipient = saveRecipientProfile;
+    currentData.saveSender = saveSenderProfile;
+    
+    // Make sure recipientProfileName is included
+    if (saveRecipientProfile && !currentData.recipientProfileName) {
+      // If no name provided but trying to save, use a default name
+      if (currentData.recipient && currentData.recipient.name) {
+        const defaultName = `${currentData.recipient.name} (${currentData.recipient.address || 'nuovo'})`;
+        currentData.recipientProfileName = defaultName;
+      }
+    }
+    
+    // Make sure senderProfileName is included
+    if (saveSenderProfile && !currentData.profileName) {
+      // If no name provided but trying to save, use a default name
+      if (currentData.sender && currentData.sender.name) {
+        const defaultName = `${currentData.sender.name} (${currentData.sender.address || 'nuovo'})`;
+        currentData.profileName = defaultName;
+      }
+    }
     
     // Pass the updated data to parent
     onFormDataChange(currentData);
@@ -251,7 +270,11 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                   <Checkbox
                     id="saveSenderProfile"
                     checked={saveSenderProfile}
-                    onCheckedChange={(checked) => setSaveSenderProfile(!!checked)}
+                    onCheckedChange={(checked) => {
+                      setSaveSenderProfile(!!checked);
+                      // Trigger form change to update parent state immediately
+                      setTimeout(() => onFormChange(), 0);
+                    }}
                   />
                   <label
                     htmlFor="saveSenderProfile"
@@ -418,7 +441,11 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                   <Checkbox
                     id="saveRecipientProfile"
                     checked={saveRecipientProfile}
-                    onCheckedChange={(checked) => setSaveRecipientProfile(!!checked)}
+                    onCheckedChange={(checked) => {
+                      setSaveRecipientProfile(!!checked);
+                      // Trigger form change to update parent state immediately
+                      setTimeout(() => onFormChange(), 0);
+                    }}
                   />
                   <label
                     htmlFor="saveRecipientProfile"

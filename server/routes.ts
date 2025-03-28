@@ -385,8 +385,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If the user wants to save the recipient profile, do it
       if (formData.saveRecipient && formData.recipient) {
         try {
-          // Use recipient name as profile name if not provided
-          const profileName = `${formData.recipient.name} (${formData.recipient.address})`;
+          // Check if we have a provided profile name for recipient
+          const profileName = formData.recipientProfileName || `${formData.recipient.name} (${formData.recipient.address})`;
           
           // Check if profile already exists by matching name and address
           const existingProfiles = await storage.getAllRecipientProfiles();
