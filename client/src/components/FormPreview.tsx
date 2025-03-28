@@ -65,11 +65,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   overflow: hidden;
                 }
                 .print-container {
-                  transform: scale(0.45);
-                  transform-origin: top center;
+                  transform: scale(0.95);
+                  transform-origin: top left;
                   width: 210mm;
                   height: 297mm;
-                  margin: 0 auto;
+                  margin: 0;
                   padding: 0;
                   overflow: visible;
                   position: absolute;

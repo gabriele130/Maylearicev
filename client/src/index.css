@@ -112,7 +112,7 @@
     display: none !important;
   }
 
-  /* Formattazione base per il contenitore di stampa - SCALA MOLTO RIDOTTA */
+  /* Formattazione base per il contenitore di stampa - SCALA OTTIMIZZATA PER PIENA PAGINA */
   .print-section {
     position: fixed !important;
     top: 0 !important;
@@ -121,32 +121,32 @@
     height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
-    transform: scale(0.50) !important; /* Scala drasticamente ridotta */
-    transform-origin: top center !important;
+    transform: scale(0.97) !important; /* Scala ottimizzata per pagina intera */
+    transform-origin: top left !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
     page-break-before: avoid !important;
     overflow: visible !important;
   }
   
-  /* Due moduli impilati verticalmente - dimensioni drasticamente ridotte */
+  /* Due moduli impilati verticalmente - ottimizzazione pagina intera */
   .print-section > div:first-child {
     position: relative !important;
-    height: 140mm !important;
-    max-height: 140mm !important;
-    padding: 1mm !important;
-    margin-bottom: 5mm !important;
+    height: 143mm !important;
+    max-height: 143mm !important;
+    padding: 2mm !important;
+    margin-bottom: 6mm !important;
     border-bottom: 1px dashed #aaa !important;
-    font-size: 7pt !important;
+    font-size: 9pt !important;
     overflow: hidden !important;
   }
   
   .print-section > div:last-child {
     position: relative !important;
-    height: 140mm !important;
-    max-height: 140mm !important;
-    padding: 1mm !important;
-    font-size: 7pt !important;
+    height: 143mm !important;
+    max-height: 143mm !important;
+    padding: 2mm !important;
+    font-size: 9pt !important;
     overflow: hidden !important;
   }
   
