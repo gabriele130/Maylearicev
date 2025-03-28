@@ -96,6 +96,15 @@
     height: 100vh;
     page-break-after: avoid;
   }
+
+  /* Distribuisci il contenuto su tutta la pagina */
+  .print-section > div:first-child {
+    min-height: 48%; /* Prima sezione (copia azienda) */
+  }
+  
+  .print-section > div:last-child {
+    min-height: 48%; /* Seconda sezione (copia cliente) */
+  }
   
   /* Hide all elements except the print section */
   body * {
@@ -113,16 +122,17 @@
   .print-section {
     position: absolute;
     top: 0; /* Posizionato il modulo in cima alla pagina */
-    left: -10%;
-    width: 120%;
-    transform: scale(0.82); /* Ridotta la scala per comprimere leggermente */
+    left: -5%;
+    width: 110%;
+    transform: scale(1.0); /* Scala normale per occupare tutta la pagina */
     transform-origin: top center;
     box-shadow: none !important;
     border: none !important;
-    padding: 0.3cm !important; /* Ridotto il padding */
+    padding: 0.5cm !important;
     margin: 0 !important;
     page-break-after: avoid;
     page-break-inside: avoid;
+    min-height: 95vh; /* Altezza minima per occupare quasi tutta la pagina */
     max-height: 100vh;
   }
   
@@ -131,8 +141,8 @@
   .print-section h3, 
   .print-section h4, 
   .print-section div {
-    line-height: 1 !important;
-    margin-bottom: 0 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.1cm !important;
   }
   
   /* Ensure images are preserved */
