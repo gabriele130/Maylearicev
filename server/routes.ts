@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { senderProfileSchema, recipientProfileSchema, transportFormSchema, insertSenderProfileSchema, insertRecipientProfileSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { addDays, startOfDay, endOfDay, subDays, subMonths, format } from "date-fns";
 
 // Schedule automatic deletion of expired documents
 function scheduleDocumentCleanup() {
@@ -441,6 +442,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting transport document:", error);
       res.status(500).json({ message: "Failed to delete transport document" });
+    }
+  });
+
+  // ----- WEIGHT STATISTICS API -----
+  // Get all weight statistics
+  app.get("/api/weight-stats", async (req, res) => {
+    try {
+      const stats = await storage.getWeightStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching weight stats:", error);
+      res.status(500).json({ message: "Failed to fetch weight statistics" });
+    }
+  });
+
+  // Get daily weight statistics
+  app.get("/api/weight-stats/daily", async (req, res) => {
+    try {
+      // Parse date from query parameter or use today
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      const stats = await storage.getDailyWeightStats(date);
+      res.json({
+        date: format(date, 'yyyy-MM-dd'),
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching daily weight stats:", error);
+      res.status(500).json({ message: "Failed to fetch daily weight statistics" });
+    }
+  });
+
+  // Get weekly weight statistics
+  app.get("/api/weight-stats/weekly", async (req, res) => {
+    try {
+      // Parse date from query parameter or use current week
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      const stats = await storage.getWeeklyWeightStats(date);
+      res.json({
+        weekStart: format(startOfDay(date), 'yyyy-MM-dd'),
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching weekly weight stats:", error);
+      res.status(500).json({ message: "Failed to fetch weekly weight statistics" });
+    }
+  });
+
+  // Get monthly weight statistics
+  app.get("/api/weight-stats/monthly", async (req, res) => {
+    try {
+      // Parse date from query parameter or use current month
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      const stats = await storage.getMonthlyWeightStats(date);
+      res.json({
+        month: format(date, 'yyyy-MM'),
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching monthly weight stats:", error);
+      res.status(500).json({ message: "Failed to fetch monthly weight statistics" });
+    }
+  });
+
+  // Get weight statistics for custom period
+  app.get("/api/weight-stats/period", async (req, res) => {
+    try {
+      // Parse start and end dates from query parameters
+      const startDateParam = req.query.startDate as string;
+      const endDateParam = req.query.endDate as string;
+      
+      if (!startDateParam || !endDateParam) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+      
+      const startDate = new Date(startDateParam);
+      const endDate = new Date(endDateParam);
+      
+      const stats = await storage.getWeightStatsByPeriod(startDate, endDate);
+      res.json({
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching period weight stats:", error);
+      res.status(500).json({ message: "Failed to fetch period weight statistics" });
+    }
+  });
+
+  // Get weight trends for last X days
+  app.get("/api/weight-stats/trends", async (req, res) => {
+    try {
+      // Parse days parameter or default to 30
+      const daysParam = req.query.days as string;
+      const days = daysParam ? parseInt(daysParam) : 30;
+      
+      if (isNaN(days) || days <= 0 || days > 365) {
+        return res.status(400).json({ message: "Days must be a number between 1 and 365" });
+      }
+      
+      const trends = await storage.getWeightTrends(days);
+      res.json(trends);
+    } catch (error) {
+      console.error("Error fetching weight trends:", error);
+      res.status(500).json({ message: "Failed to fetch weight trends" });
+    }
+  });
+
+  // Get destination statistics
+  app.get("/api/weight-stats/destinations", async (req, res) => {
+    try {
+      // Parse period or default to last 30 days
+      const periodParam = req.query.period as string || '30days';
+      
+      let startDate: Date, endDate: Date;
+      
+      switch (periodParam) {
+        case '7days':
+          startDate = subDays(startOfDay(new Date()), 7);
+          endDate = new Date();
+          break;
+        case '30days':
+          startDate = subDays(startOfDay(new Date()), 30);
+          endDate = new Date();
+          break;
+        case '90days':
+          startDate = subDays(startOfDay(new Date()), 90);
+          endDate = new Date();
+          break;
+        case '1year':
+          startDate = subMonths(startOfDay(new Date()), 12);
+          endDate = new Date();
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid period. Use '7days', '30days', '90days', or '1year'" });
+      }
+      
+      const stats = await storage.getDestinationStats(startDate, endDate);
+      res.json({
+        period: periodParam,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        destinations: stats
+      });
+    } catch (error) {
+      console.error("Error fetching destination stats:", error);
+      res.status(500).json({ message: "Failed to fetch destination statistics" });
     }
   });
 

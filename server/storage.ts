@@ -1,10 +1,10 @@
-import { users, senderProfiles, recipientProfiles, transportDocuments, type User, type InsertUser, type SenderProfile, type RecipientProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData } from "@shared/schema";
+import { users, senderProfiles, recipientProfiles, transportDocuments, weightStats, type User, type InsertUser, type SenderProfile, type RecipientProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData, type WeightStat, type InsertWeightStat } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, lt, gte } from "drizzle-orm";
+import { eq, desc, lt, gte, and, count, sum, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { add } from "date-fns";
+import { add, format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 
-// Interface is kept the same for compatibility
+// Interface definition
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -30,6 +30,16 @@ export interface IStorage {
   createTransportDocument(formData: TransportFormData): Promise<TransportDocument>;
   deleteTransportDocument(id: number): Promise<boolean>;
   deleteExpiredDocuments(): Promise<number>;
+  
+  // Weight statistics methods
+  recordWeightStat(documentId: number, data: Omit<InsertWeightStat, "id" | "documentId">): Promise<WeightStat>;
+  getWeightStats(): Promise<WeightStat[]>;
+  getDailyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}>;
+  getWeeklyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}>;
+  getMonthlyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}>;
+  getWeightStatsByPeriod(startDate: Date, endDate: Date): Promise<{totalWeight: number; totalPackages: number}>;
+  getWeightTrends(days: number): Promise<Array<{date: string; totalWeight: number; totalPackages: number}>>;
+  getDestinationStats(startDate: Date, endDate: Date): Promise<Array<{destination: string; totalWeight: number; count: number}>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -240,6 +250,22 @@ export class DatabaseStorage implements IStorage {
         .values(newDocument)
         .returning();
 
+      // Registra i dati di peso per le statistiche
+      const now = new Date();
+      const weightStatData = {
+        totalWeight: formData.package.weight * formData.package.count, // Peso totale (peso * numero colli)
+        packageCount: formData.package.count,
+        transportDate: now,
+        transportDay: format(now, 'yyyy-MM-dd'), // Convert to string in yyyy-MM-dd format
+        destination: formData.recipient.city, // Usa la città del destinatario
+        transportType: "Strada", // Valore predefinito
+        vehicleType: "Furgone", // Valore predefinito
+        operatorId: 1, // Utente predefinito (modificare quando si implementerà l'autenticazione)
+      };
+      
+      // Salva le statistiche di peso
+      await this.recordWeightStat(savedDocument.id, weightStatData);
+
       // Se l'utente vuole salvare il profilo mittente, lo facciamo
       if (formData.saveSender && formData.profileName) {
         // Crea un oggetto profilo dal mittente
@@ -306,6 +332,200 @@ export class DatabaseStorage implements IStorage {
       return result.length;
     } catch (error) {
       console.error("Error deleting expired documents:", error);
+      throw error;
+    }
+  }
+
+  // Implementazione metodi per il tracciamento dei pesi
+  async recordWeightStat(documentId: number, data: Omit<InsertWeightStat, "id" | "documentId">): Promise<WeightStat> {
+    try {
+      // Se transportDay è una Date, Drizzle si occuperà di convertirla correttamente nel formato del database
+      const weightStatData = {
+        documentId,
+        ...data
+      };
+
+      const [savedStat] = await db
+        .insert(weightStats)
+        .values(weightStatData)
+        .returning();
+
+      return savedStat;
+    } catch (error) {
+      console.error("Error recording weight stat:", error);
+      throw error;
+    }
+  }
+
+  async getWeightStats(): Promise<WeightStat[]> {
+    try {
+      return await db
+        .select()
+        .from(weightStats)
+        .orderBy(desc(weightStats.transportDate));
+    } catch (error) {
+      console.error("Error getting weight stats:", error);
+      throw error;
+    }
+  }
+
+  async getDailyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}> {
+    try {
+      const day = startOfDay(date);
+      const nextDay = endOfDay(date);
+
+      const [result] = await db
+        .select({
+          totalWeight: sum(weightStats.totalWeight),
+          totalPackages: sum(weightStats.packageCount),
+        })
+        .from(weightStats)
+        .where(
+          and(
+            gte(weightStats.transportDate, day),
+            lt(weightStats.transportDate, nextDay)
+          )
+        );
+
+      return {
+        totalWeight: Number(result.totalWeight) || 0,
+        totalPackages: Number(result.totalPackages) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting daily weight stats:", error);
+      throw error;
+    }
+  }
+
+  async getWeeklyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}> {
+    try {
+      const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Lunedì
+      const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
+
+      const [result] = await db
+        .select({
+          totalWeight: sum(weightStats.totalWeight),
+          totalPackages: sum(weightStats.packageCount),
+        })
+        .from(weightStats)
+        .where(
+          and(
+            gte(weightStats.transportDate, weekStart),
+            lt(weightStats.transportDate, weekEnd)
+          )
+        );
+
+      return {
+        totalWeight: Number(result.totalWeight) || 0,
+        totalPackages: Number(result.totalPackages) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting weekly weight stats:", error);
+      throw error;
+    }
+  }
+
+  async getMonthlyWeightStats(date: Date): Promise<{totalWeight: number; totalPackages: number}> {
+    try {
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+
+      const [result] = await db
+        .select({
+          totalWeight: sum(weightStats.totalWeight),
+          totalPackages: sum(weightStats.packageCount),
+        })
+        .from(weightStats)
+        .where(
+          and(
+            gte(weightStats.transportDate, monthStart),
+            lt(weightStats.transportDate, monthEnd)
+          )
+        );
+
+      return {
+        totalWeight: Number(result.totalWeight) || 0,
+        totalPackages: Number(result.totalPackages) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting monthly weight stats:", error);
+      throw error;
+    }
+  }
+
+  async getWeightStatsByPeriod(startDate: Date, endDate: Date): Promise<{totalWeight: number; totalPackages: number}> {
+    try {
+      const [result] = await db
+        .select({
+          totalWeight: sum(weightStats.totalWeight),
+          totalPackages: sum(weightStats.packageCount),
+        })
+        .from(weightStats)
+        .where(
+          and(
+            gte(weightStats.transportDate, startDate),
+            lt(weightStats.transportDate, endDate)
+          )
+        );
+
+      return {
+        totalWeight: Number(result.totalWeight) || 0,
+        totalPackages: Number(result.totalPackages) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting weight stats by period:", error);
+      throw error;
+    }
+  }
+
+  async getWeightTrends(days: number): Promise<Array<{date: string; totalWeight: number; totalPackages: number}>> {
+    try {
+      const startDate = startOfDay(add(new Date(), { days: -days }));
+      
+      // Usiamo SQL grezzo per formattare la data come stringa
+      const results = await db.execute(sql`
+        SELECT 
+          to_char(transport_day, 'YYYY-MM-DD') as date,
+          SUM(total_weight) as total_weight,
+          SUM(package_count) as total_packages
+        FROM weight_stats
+        WHERE transport_date >= ${startDate}
+        GROUP BY transport_day
+        ORDER BY transport_day ASC
+      `);
+
+      return results.map(row => ({
+        date: String(row.date),
+        totalWeight: Number(row.total_weight) || 0,
+        totalPackages: Number(row.total_packages) || 0,
+      }));
+    } catch (error) {
+      console.error("Error getting weight trends:", error);
+      throw error;
+    }
+  }
+
+  async getDestinationStats(startDate: Date, endDate: Date): Promise<Array<{destination: string; totalWeight: number; count: number}>> {
+    try {
+      // Usiamo SQL grezzo per raggruppare per destinazione e sommare pesi e conteggi
+      const results = await db.execute(sql`
+        SELECT 
+          COALESCE(destination, 'Altro') as destination,
+          SUM(total_weight) as total_weight,
+          COUNT(*) as count
+        FROM weight_stats
+        WHERE transport_date >= ${startDate} AND transport_date < ${endDate}
+        GROUP BY destination
+        ORDER BY SUM(total_weight) DESC
+      `);
+
+      return results.map(row => ({
+        destination: String(row.destination),
+        totalWeight: Number(row.total_weight) || 0,
+        count: Number(row.count) || 0,
+      }));
+    } catch (error) {
+      console.error("Error getting destination stats:", error);
       throw error;
     }
   }
