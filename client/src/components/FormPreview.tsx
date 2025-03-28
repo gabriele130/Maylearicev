@@ -61,27 +61,31 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   font-family: Arial, Calibri, Roboto, sans-serif;
                 }
                 .print-container {
-                  transform: scale(0.6);
+                  transform: scale(0.55);
                   transform-origin: top center;
                   width: 210mm;
-                  max-width: 210mm;
+                  height: 297mm;
+                  margin: 0 auto;
                   overflow: hidden;
+                  page-break-after: avoid;
+                  page-break-inside: avoid;
+                  page-break-before: avoid;
                 }
                 .print-section > div:first-child {
                   position: relative;
-                  height: 140mm;
-                  max-height: 140mm;
-                  padding: 1mm;
-                  margin-bottom: 2mm;
+                  height: 148mm;
+                  max-height: 148mm;
+                  padding: 2mm;
+                  margin-bottom: 1mm;
                   border-bottom: 1px dashed #aaa;
                   border: 0.5pt solid #e0e0e0;
                   overflow: hidden;
                 }
                 .print-section > div:last-child {
                   position: relative;
-                  height: 140mm;
-                  max-height: 140mm;
-                  padding: 1mm;
+                  height: 148mm;
+                  max-height: 148mm;
+                  padding: 2mm;
                   border: 0.5pt solid #e0e0e0;
                   overflow: hidden;
                 }

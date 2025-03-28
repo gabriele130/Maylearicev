@@ -93,8 +93,9 @@
     padding: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    page-break-after: always !important;
+    page-break-after: avoid !important;
     page-break-inside: avoid !important;
+    page-break-before: avoid !important;
     font-family: Arial, Calibri, Roboto, sans-serif;
   }
 
@@ -104,24 +105,25 @@
     display: flex !important;
     flex-direction: column !important;
     width: 210mm !important; /* Larghezza esatta di A4 */
-    height: 290mm !important; /* Altezza ridotta di A4 */
+    height: 297mm !important; /* Altezza esatta di A4 */
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 !important;
-    transform: scale(0.7) !important; /* Scala ridotta significativamente */
+    margin: 0 auto !important;
+    transform: scale(0.65) !important; /* Scala ridotta per assicurarsi che tutto stia in una pagina */
     transform-origin: top center !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;
+    page-break-before: avoid !important;
   }
   
-  /* Due moduli impilati verticalmente, con altezza estremamente ridotta */
+  /* Due moduli impilati verticalmente, con altezza ottimizzata */
   .print-section > div:first-child {
     position: relative !important;
-    height: 140mm !important;
-    max-height: 140mm !important;
-    padding: 1mm !important;
-    margin-bottom: 2mm !important;
+    height: 148mm !important; /* Metà esatta di A4 */
+    max-height: 148mm !important;
+    padding: 2mm !important;
+    margin-bottom: 1mm !important;
     border-bottom: 1px dashed #aaa !important; /* Linea tratteggiata per taglio */
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
     overflow: hidden !important;
@@ -129,9 +131,9 @@
   
   .print-section > div:last-child {
     position: relative !important;
-    height: 140mm !important;
-    max-height: 140mm !important;
-    padding: 1mm !important;
+    height: 148mm !important; /* Metà esatta di A4 */
+    max-height: 148mm !important;
+    padding: 2mm !important;
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
     overflow: hidden !important;
   }
