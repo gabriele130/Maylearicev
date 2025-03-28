@@ -54,58 +54,76 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 @page {
                   size: A4 portrait;
                   margin: 0;
+                  padding: 0;
                 }
-                body {
+                html, body {
                   margin: 0;
                   padding: 0;
+                  width: 100%;
+                  height: 100%;
                   font-family: Arial, Calibri, Roboto, sans-serif;
+                  overflow: hidden;
                 }
                 .print-container {
-                  transform: scale(0.55);
+                  transform: scale(0.45);
                   transform-origin: top center;
                   width: 210mm;
                   height: 297mm;
                   margin: 0 auto;
-                  overflow: hidden;
-                  page-break-after: avoid;
+                  padding: 0;
+                  overflow: visible;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                }
+                .print-section {
+                  width: 210mm;
+                  height: 297mm;
+                  margin: 0;
+                  padding: 0;
+                  display: flex;
+                  flex-direction: column;
                   page-break-inside: avoid;
-                  page-break-before: avoid;
+                  page-break-after: avoid;
+                  overflow: visible;
                 }
                 .print-section > div:first-child {
                   position: relative;
-                  height: 148mm;
-                  max-height: 148mm;
-                  padding: 2mm;
-                  margin-bottom: 1mm;
+                  height: 144mm;
+                  max-height: 144mm;
+                  padding: 1mm;
+                  margin-bottom: 3mm;
                   border-bottom: 1px dashed #aaa;
-                  border: 0.5pt solid #e0e0e0;
                   overflow: hidden;
                 }
                 .print-section > div:last-child {
                   position: relative;
-                  height: 148mm;
-                  max-height: 148mm;
-                  padding: 2mm;
-                  border: 0.5pt solid #e0e0e0;
+                  height: 144mm;
+                  max-height: 144mm;
+                  padding: 1mm;
                   overflow: hidden;
                 }
+                /* Testo più piccolo per assicurare che tutto entri */
                 .print-section {
-                  font-size: 8pt;
+                  font-size: 6pt;
                 }
                 .print-section h3 {
                   font-weight: 700;
-                  line-height: 1.1;
-                  font-size: 9pt;
+                  line-height: 1;
+                  font-size: 7pt;
+                  margin: 0;
                 }
                 .print-section h4 {
                   font-weight: 700;
-                  line-height: 1.1;
-                  font-size: 8pt;
+                  line-height: 1;
+                  font-size: 6pt;
+                  margin: 0;
                 }
                 .print-section p, 
                 .print-section div {
-                  line-height: 1.1;
-                  margin-bottom: 0;
+                  line-height: 1;
+                  margin: 0;
+                  padding: 0;
                   text-align: left;
                 }
               </style>
