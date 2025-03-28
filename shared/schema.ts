@@ -65,7 +65,7 @@ export const weightStats = pgTable("weight_stats", {
   destination: text("destination"),  // Città destinazione
   transportType: text("transport_type"),  // Tipo di trasporto
   vehicleType: text("vehicle_type"),  // Mezzo utilizzato
-  operatorId: integer("operator_id").references(() => users.id),
+  // Rimuoviamo il riferimento a operatorId per ora
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({

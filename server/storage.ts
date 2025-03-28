@@ -260,7 +260,7 @@ export class DatabaseStorage implements IStorage {
         destination: formData.recipient.city, // Usa la città del destinatario
         transportType: "Strada", // Valore predefinito
         vehicleType: "Furgone", // Valore predefinito
-        operatorId: 1, // Utente predefinito (modificare quando si implementerà l'autenticazione)
+        // Rimuoviamo operatorId poiché non abbiamo ancora utenti nel sistema
       };
       
       // Salva le statistiche di peso
