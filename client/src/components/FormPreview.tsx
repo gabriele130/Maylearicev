@@ -178,7 +178,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <p className="text-[9px] text-gray-700">C.T.D. SRL</p>
                   <p className="text-[9px] text-gray-700">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
                   <p className="text-[9px] text-gray-700">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
-                  <p className="text-[9px] text-gray-700">whatsapp: 331 3896381</p>
+                  <p className="text-[9px] text-gray-700">whatsapp: 331 3896381 - www.maylealogistics.it</p>
                 </div>
               </div>
               <div className="text-right">
@@ -324,7 +324,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <p className="text-[9px] text-gray-700">C.T.D. SRL</p>
                   <p className="text-[9px] text-gray-700">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
                   <p className="text-[9px] text-gray-700">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
-                  <p className="text-[9px] text-gray-700">whatsapp: 331 3896381</p>
+                  <p className="text-[9px] text-gray-700">whatsapp: 331 3896381 - www.maylealogistics.it</p>
                 </div>
               </div>
               <div className="text-right">
@@ -437,7 +437,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             </div>
 
             {/* Disclaimer and Signature (Client Copy) */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-1">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-[9px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-1">LIMITAZIONI DI RESPONSABILITÀ</h4>
                 <p className="text-[7px] text-gray-700 leading-tight">
@@ -447,7 +447,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-[9px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-1">FIRMA PER ACCETTAZIONE</h4>
                 <div className="flex flex-col justify-between h-[50px]">
-                  <p className="text-[8px] text-gray-700 mb-1">Il mittente riconosce e accetta le condizioni di trasporto.</p>
+                  <p className="text-[8px] text-gray-700 mb-1">Il destinatario riconosce e accetta le condizioni di trasporto.</p>
                   <div className="border-t border-gray-400 pt-1 mt-auto"></div>
                 </div>
               </div>
