@@ -32,11 +32,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
           <Button
             id="print-button"
             onClick={handlePrint}
-            className="bg-primary text-white hover:bg-primary/90 px-10 py-6 text-lg"
-            title="Stampa il documento"
+            className="bg-primary text-white hover:bg-primary/90 px-16 py-8 text-2xl font-bold rounded-lg"
+            title="Stampa"
           >
-            <Printer className="h-6 w-6 mr-2" />
-            <span>Stampa</span>
+            <Printer className="h-8 w-8 mr-3" />
+            <span>STAMPA</span>
           </Button>
         </div>
 

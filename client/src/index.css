@@ -81,7 +81,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm; /* 10mm top/bottom, 12mm left/right come richiesto */
+    margin: 0mm !important; /* Rimuovi completamente i margini */
   }
   
   @page :blank {
@@ -89,51 +89,51 @@
   }
   
   body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    page-break-after: avoid;
-    page-break-inside: avoid;
-    font-family: Arial, Calibri, Roboto, sans-serif; /* Font richiesto */
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    font-family: Arial, Calibri, Roboto, sans-serif;
   }
 
   /* Formattazione base per il contenitore di stampa */
   .print-section {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 210mm !important; /* Larghezza esatta di A4 */
+    height: 290mm !important; /* Altezza ridotta di A4 */
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 auto !important;
-    transform: scale(0.95) !important; /* Ripristinata la scala originale */
-    transform-origin: top center;
-    page-break-after: avoid;
-    page-break-inside: avoid;
+    margin: 0 !important;
+    transform: scale(0.7) !important; /* Scala ridotta significativamente */
+    transform-origin: top center !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
   }
   
-  /* Due moduli impilati verticalmente, con altezza notevolmente ridotta */
+  /* Due moduli impilati verticalmente, con altezza estremamente ridotta */
   .print-section > div:first-child {
-    position: relative;
-    height: 120mm;
-    max-height: 120mm;
-    padding-bottom: 3mm;
-    margin-bottom: 3mm;
+    position: relative !important;
+    height: 140mm !important;
+    max-height: 140mm !important;
+    padding: 1mm !important;
+    margin-bottom: 2mm !important;
     border-bottom: 1px dashed #aaa !important; /* Linea tratteggiata per taglio */
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
-    padding: 5px !important;
+    overflow: hidden !important;
   }
   
   .print-section > div:last-child {
-    position: relative;
-    height: 120mm;
-    max-height: 120mm;
-    padding-top: 3mm;
+    position: relative !important;
+    height: 140mm !important;
+    max-height: 140mm !important;
+    padding: 1mm !important;
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
-    padding: 5px !important;
+    overflow: hidden !important;
   }
   
   /* Linea di taglio con indicazione */
