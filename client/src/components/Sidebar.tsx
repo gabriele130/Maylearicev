@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MenuIcon, X, FileText, Archive, Users } from "lucide-react";
 import { useSidebar } from "@/hooks/use-sidebar";
+import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 
 const sidebarLinks = [
   {
@@ -44,17 +45,29 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Mobile header with menu button */}
-      <div className="flex h-16 items-center px-4 md:hidden border-b">
-        <Button
-          variant="ghost"
-          className="mr-2"
-          size="icon"
-          onClick={() => setOpenMobile(!openMobile)}
-        >
-          <MenuIcon className="h-6 w-6" />
-        </Button>
-        <div className="font-semibold">MAYLEA Logistics & Transport</div>
+      {/* Mobile header with menu button and improved styling */}
+      <div className="flex h-16 items-center justify-between px-4 md:hidden border-b bg-secondary-50 sticky top-0 z-30 shadow-sm">
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            className="mr-2"
+            size="icon"
+            onClick={() => setOpenMobile(!openMobile)}
+          >
+            <MenuIcon className="h-6 w-6" />
+          </Button>
+          <div className="flex items-center">
+            <img 
+              src={logoPath} 
+              alt="Maylea Logo" 
+              className="h-8 w-auto mr-2" 
+            />
+            <div className="font-semibold text-primary text-sm">MAYLEA Logistics & Transport</div>
+          </div>
+        </div>
+        <div className="text-xs text-right">
+          <p className="font-medium">Documento di Trasporto</p>
+        </div>
       </div>
 
       {/* Sidebar */}
@@ -65,13 +78,20 @@ export default function Sidebar() {
           isMobile && !openMobile ? "-translate-x-full" : ""
         )}
       >
-        {/* Sidebar header with toggle/close button */}
-        <div className="flex h-16 items-center border-b px-4">
+        {/* Sidebar header with toggle/close button and logo */}
+        <div className="flex h-16 items-center border-b px-4 bg-secondary-50">
           <div className={cn("flex items-center flex-1", 
             state === "collapsed" && !isMobile ? "justify-center" : "justify-between"
           )}>
             {(state === "expanded" || isMobile) && (
-              <span className="font-semibold">MAYLEA ML&T</span>
+              <div className="flex items-center">
+                <img 
+                  src={logoPath} 
+                  alt="Maylea Logo" 
+                  className="h-7 w-auto mr-2" 
+                />
+                <span className="font-semibold text-primary">MAYLEA ML&T</span>
+              </div>
             )}
             
             {isMobile ? (
