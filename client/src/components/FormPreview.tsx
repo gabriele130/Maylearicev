@@ -103,20 +103,20 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   padding: 2mm;
                   overflow: hidden;
                 }
-                /* Testo dimensionato per leggibilità ottimale */
+                /* Testo dimensionato per leggibilità ottimale - incrementato di 1.5px */
                 .print-section {
-                  font-size: 9pt;
+                  font-size: 10.5pt;
                 }
                 .print-section h3 {
                   font-weight: 700;
                   line-height: 1.2;
-                  font-size: 10pt;
+                  font-size: 11.5pt;
                   margin: 0;
                 }
                 .print-section h4 {
                   font-weight: 700;
                   line-height: 1.2;
-                  font-size: 9pt;
+                  font-size: 10.5pt;
                   margin: 0;
                 }
                 .print-section p, 

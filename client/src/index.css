@@ -175,21 +175,21 @@
   
   /* Controllo della visibilità - regola rimossa perché duplicata */
   
-  /* Miglioramento della leggibilità - dimensione testo 10-11pt come richiesto */
+  /* Miglioramento della leggibilità - dimensione testo incrementato di 1.5px */
   .print-section {
-    font-size: 10pt !important; /* Dimensione ridotta */
+    font-size: 11.5pt !important; /* Incrementato di 1.5px */
   }
   
   .print-section h3 {
     font-weight: 700 !important;
     line-height: 1.2 !important;
-    font-size: 11pt !important;
+    font-size: 12.5pt !important; /* Incrementato di 1.5px */
   }
   
   .print-section h4 {
     font-weight: 700 !important; /* Intestazioni in grassetto come richiesto */
     line-height: 1.2 !important;
-    font-size: 10pt !important; /* Dimensione ridotta */
+    font-size: 11.5pt !important; /* Incrementato di 1.5px */
   }
   
   .print-section p, 
