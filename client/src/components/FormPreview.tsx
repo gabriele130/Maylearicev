@@ -65,8 +65,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   overflow: hidden;
                 }
                 .print-container {
-                  transform: scale(0.95);
-                  transform-origin: top left;
+                  transform: translateX(-50%) scale(0.99);
+                  transform-origin: top center;
                   width: 210mm;
                   height: 297mm;
                   margin: 0;
@@ -74,7 +74,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   overflow: visible;
                   position: absolute;
                   top: 0;
-                  left: 0;
+                  left: 50%;
                 }
                 .print-section {
                   width: 210mm;
@@ -89,39 +89,39 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                 }
                 .print-section > div:first-child {
                   position: relative;
-                  height: 144mm;
-                  max-height: 144mm;
-                  padding: 1mm;
-                  margin-bottom: 3mm;
+                  height: 143mm;
+                  max-height: 143mm;
+                  padding: 2mm;
+                  margin-bottom: 6mm;
                   border-bottom: 1px dashed #aaa;
                   overflow: hidden;
                 }
                 .print-section > div:last-child {
                   position: relative;
-                  height: 144mm;
-                  max-height: 144mm;
-                  padding: 1mm;
+                  height: 143mm;
+                  max-height: 143mm;
+                  padding: 2mm;
                   overflow: hidden;
                 }
-                /* Testo più piccolo per assicurare che tutto entri */
+                /* Testo dimensionato per leggibilità ottimale */
                 .print-section {
-                  font-size: 6pt;
+                  font-size: 9pt;
                 }
                 .print-section h3 {
                   font-weight: 700;
-                  line-height: 1;
-                  font-size: 7pt;
+                  line-height: 1.2;
+                  font-size: 10pt;
                   margin: 0;
                 }
                 .print-section h4 {
                   font-weight: 700;
-                  line-height: 1;
-                  font-size: 6pt;
+                  line-height: 1.2;
+                  font-size: 9pt;
                   margin: 0;
                 }
                 .print-section p, 
                 .print-section div {
-                  line-height: 1;
+                  line-height: 1.2;
                   margin: 0;
                   padding: 0;
                   text-align: left;
