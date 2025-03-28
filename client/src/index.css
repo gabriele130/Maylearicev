@@ -81,8 +81,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0;
-    margin-bottom: 0;
+    margin: 0.5cm; /* Margini standard di 5mm */
   }
   
   @page :blank {
@@ -93,30 +92,62 @@
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     page-break-after: avoid;
+    page-break-inside: avoid;
   }
 
-  /* Distribuisci il contenuto su tutta la pagina */
+  /* Formattazione base per il contenitore di stampa */
+  .print-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  
+  /* Due moduli impilati verticalmente */
   .print-section > div:first-child {
-    min-height: 49%; /* Prima sezione (copia azienda) */
-    margin-bottom: 2%; /* Spazio tra le due sezioni */
+    position: relative;
+    padding-bottom: 0.5cm;
+    margin-bottom: 0.3cm;
+    border-bottom: 1px dashed #666 !important; /* Linea tratteggiata per taglio */
   }
   
   .print-section > div:last-child {
-    min-height: 49%; /* Seconda sezione (copia cliente) */
+    position: relative;
+    padding-top: 0.3cm;
   }
   
-  /* Aumenta lo spazio occupato dagli elementi interni */
+  /* Linea di taglio con indicazione */
+  .print-section > div:first-child::after {
+    content: "✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
+    position: absolute;
+    bottom: -0.4cm;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 9px;
+    color: #888;
+  }
+  
+  /* Ottimizzazione degli spazi interni */
   .print-section .border {
     padding: 0.15cm !important;
+    border-radius: 0 !important;
   }
   
   .print-section .grid {
     grid-gap: 0.15cm;
   }
   
-  /* Hide all elements except the print section */
+  /* Controllo della visibilità */
   body * {
     visibility: hidden;
   }
@@ -129,35 +160,46 @@
     display: none !important;
   }
   
-  .print-section {
-    position: absolute;
-    top: 0; /* Posizionato il modulo in cima alla pagina */
-    left: -5%;
-    width: 110%;
-    transform: scale(1); /* Scala normale per occupare tutta la pagina */
-    transform-origin: top center;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0.3cm !important; /* Ridotto il padding */
-    margin: 0 !important;
-    page-break-after: avoid;
-    page-break-inside: avoid;
-    max-height: 100vh;
-    height: 100vh; /* Occupa l'intera altezza della viewport */
+  /* Miglioramento della leggibilità */
+  .print-section h3 {
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
   }
   
-  /* Ensure line height is compact for better fit */
+  .print-section h4 {
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+  }
+  
   .print-section p, 
-  .print-section h3, 
-  .print-section h4, 
   .print-section div {
-    line-height: 1 !important;
+    line-height: 1.1 !important;
     margin-bottom: 0 !important;
   }
   
-  /* Ensure images are preserved */
+  .print-section .font-semibold {
+    font-weight: 600 !important;
+  }
+  
+  .print-section .font-bold {
+    font-weight: 700 !important;
+  }
+  
+  /* Dimensioni ottimali per immagini */
   .print-section img {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    max-height: 1cm !important;
+  }
+  
+  /* Migliore separazione visiva tra sezioni */
+  .print-section .mb-4 {
+    margin-bottom: 0.2cm !important;
+  }
+  
+  /* Uniforma altezza contenitori */
+  .print-section .h-\[65px\] {
+    height: auto !important;
+    min-height: 1cm !important;
   }
 }
