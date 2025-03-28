@@ -81,7 +81,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0.5cm; /* Margini standard di 5mm */
+    margin: 10mm 12mm; /* 10mm top/bottom, 12mm left/right come richiesto */
   }
   
   @page :blank {
@@ -95,6 +95,7 @@
     height: 100%;
     page-break-after: avoid;
     page-break-inside: avoid;
+    font-family: Arial, Calibri, Roboto, sans-serif; /* Font richiesto */
   }
 
   /* Formattazione base per il contenitore di stampa */
@@ -108,28 +109,38 @@
     border: none !important;
     padding: 0 !important;
     margin: 0 auto !important;
+    transform: scale(1.0) !important; /* Scala al 100% come richiesto */
+    transform-origin: top center;
     page-break-after: avoid;
     page-break-inside: avoid;
   }
   
-  /* Due moduli impilati verticalmente */
+  /* Due moduli impilati verticalmente, ognuno 135mm di altezza */
   .print-section > div:first-child {
     position: relative;
-    padding-bottom: 0.5cm;
-    margin-bottom: 0.3cm;
-    border-bottom: 1px dashed #666 !important; /* Linea tratteggiata per taglio */
+    height: 135mm;
+    max-height: 135mm;
+    padding-bottom: 5mm;
+    margin-bottom: 5mm;
+    border-bottom: 1px dashed #aaa !important; /* Linea tratteggiata per taglio */
+    border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
+    padding: 8px !important;
   }
   
   .print-section > div:last-child {
     position: relative;
-    padding-top: 0.3cm;
+    height: 135mm;
+    max-height: 135mm;
+    padding-top: 5mm;
+    border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
+    padding: 8px !important;
   }
   
   /* Linea di taglio con indicazione */
   .print-section > div:first-child::after {
-    content: "✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
+    content: "✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
     position: absolute;
-    bottom: -0.4cm;
+    bottom: -4mm;
     left: 0;
     width: 100%;
     text-align: center;
@@ -137,14 +148,15 @@
     color: #888;
   }
   
-  /* Ottimizzazione degli spazi interni */
+  /* Ottimizzazione degli spazi interni - padding uniforme 10-12px come richiesto */
   .print-section .border {
-    padding: 0.15cm !important;
+    padding: 10px !important;
     border-radius: 0 !important;
+    border: 0.5pt solid #e0e0e0 !important;
   }
   
   .print-section .grid {
-    grid-gap: 0.15cm;
+    grid-gap: 8px !important; /* Minimo 8px come richiesto */
   }
   
   /* Controllo della visibilità */
@@ -160,25 +172,32 @@
     display: none !important;
   }
   
-  /* Miglioramento della leggibilità */
+  /* Miglioramento della leggibilità - dimensione testo 10-11pt come richiesto */
+  .print-section {
+    font-size: 10.5pt !important;
+  }
+  
   .print-section h3 {
     font-weight: 700 !important;
-    line-height: 1.1 !important;
+    line-height: 1.2 !important;
+    font-size: 11pt !important;
   }
   
   .print-section h4 {
-    font-weight: 600 !important;
-    line-height: 1.1 !important;
+    font-weight: 700 !important; /* Intestazioni in grassetto come richiesto */
+    line-height: 1.2 !important;
+    font-size: 10.5pt !important;
   }
   
   .print-section p, 
   .print-section div {
-    line-height: 1.1 !important;
+    line-height: 1.2 !important;
     margin-bottom: 0 !important;
+    text-align: left !important; /* Allineamento a sinistra come richiesto */
   }
   
   .print-section .font-semibold {
-    font-weight: 600 !important;
+    font-weight: 700 !important; /* Grassetto come richiesto per intestazioni */
   }
   
   .print-section .font-bold {
@@ -189,17 +208,28 @@
   .print-section img {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-    max-height: 1cm !important;
+    max-height: 12mm !important;
   }
   
-  /* Migliore separazione visiva tra sezioni */
-  .print-section .mb-4 {
-    margin-bottom: 0.2cm !important;
+  /* Migliore separazione visiva tra sezioni - minimo 8px come richiesto */
+  .print-section .mb-4, .print-section .mb-2 {
+    margin-bottom: 8px !important;
   }
   
   /* Uniforma altezza contenitori */
-  .print-section .h-\[65px\] {
+  .print-section .h-\[50px\], .print-section .h-\[65px\] {
     height: auto !important;
     min-height: 1cm !important;
+  }
+  
+  /* Assicura il contenuto completo in ogni modulo, incluso il campo firma */
+  .print-section .flex-col {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Assicura la massima larghezza utilizzabile del foglio A4 */
+  .print-section > div {
+    width: 100% !important;
   }
 }

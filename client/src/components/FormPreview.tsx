@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { Printer } from "lucide-react";
+import { Printer, FileDown } from "lucide-react";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -22,27 +24,69 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   
   // Handle print functionality with window.print()
   const handlePrint = () => {
-    // Esegue la funzione di stampa nativa
     window.print();
+  };
+  
+  // Handle PDF export
+  const handleExportPDF = async () => {
+    if (!printRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Use A4 size
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // A4 dimensions: 210 x 297 mm
+      const imgWidth = 210 - 24; // Account for margins (12mm each side)
+      const position = 10; // Top margin
+      
+      pdf.addImage(imgData, 'PNG', 12, position, imgWidth, 0);
+      pdf.save(`MayleaLogistics-${documentId}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Impossibile generare il PDF. Riprova più tardi.");
+    }
   };
 
   return (
     <Card className="bg-white rounded-lg shadow-md">
       <CardContent className="pt-6">
         <div className="flex justify-between items-center mb-4 print:hidden print-hide">
-          <h2 className="text-xl font-semibold text-primary text-[14px]">Anteprima Modulo</h2>
-          <Button
-            onClick={handlePrint}
-            className="bg-primary text-white hover:bg-primary/90"
-          >
-            <Printer className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Stampa</span>
-          </Button>
+          <h2 className="text-xl font-semibold text-primary">Anteprima Modulo</h2>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportPDF}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+              title="Esporta come PDF"
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+            <Button
+              onClick={handlePrint}
+              className="bg-primary text-white hover:bg-primary/90"
+              title="Stampa modulo"
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Stampa</span>
+            </Button>
+          </div>
         </div>
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-4 print-section text-[8px] mt-2"
+          className="border border-gray-300 rounded-lg p-4 print-section text-[10.5pt] mt-2"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-3 mb-3">
