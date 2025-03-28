@@ -8,6 +8,7 @@ import Archive from "@/pages/Archive";
 import Senders from "@/pages/Senders";
 import Recipients from "@/pages/Recipients";
 import Statistics from "@/pages/Statistics";
+import IncomeStatistics from "@/pages/IncomeStatistics";
 import Sidebar from "@/components/Sidebar";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/senders" component={Senders} />
       <Route path="/recipients" component={Recipients} />
       <Route path="/statistics" component={Statistics} />
+      <Route path="/income-statistics" component={IncomeStatistics} />
       <Route path="/clients" component={Senders} /> {/* Redirect legacy route */}
       <Route component={NotFound} />
     </Switch>

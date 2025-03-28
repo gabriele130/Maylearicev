@@ -1,4 +1,4 @@
-import { users, senderProfiles, recipientProfiles, transportDocuments, weightStats, type User, type InsertUser, type SenderProfile, type RecipientProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData, type WeightStat, type InsertWeightStat } from "@shared/schema";
+import { users, senderProfiles, recipientProfiles, transportDocuments, weightStats, revenueStats, type User, type InsertUser, type SenderProfile, type RecipientProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData, type WeightStat, type InsertWeightStat, type RevenueStat, type InsertRevenueStat } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, lt, gte, and, count, sum, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -40,6 +40,17 @@ export interface IStorage {
   getWeightStatsByPeriod(startDate: Date, endDate: Date): Promise<{totalWeight: number; totalPackages: number}>;
   getWeightTrends(days: number): Promise<Array<{date: string; totalWeight: number; totalPackages: number}>>;
   getDestinationStats(startDate: Date, endDate: Date): Promise<Array<{destination: string; totalWeight: number; count: number}>>;
+  
+  // Revenue statistics methods
+  recordRevenueStat(documentId: number, data: Omit<InsertRevenueStat, "id" | "documentId">): Promise<RevenueStat>;
+  getRevenueStats(): Promise<RevenueStat[]>;
+  getDailyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}>;
+  getWeeklyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}>;
+  getMonthlyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}>;
+  getRevenueStatsByPeriod(startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}>;
+  getRevenueTrends(days: number): Promise<Array<{date: string; totalAmount: number; count: number}>>;
+  getRevenueByPaymentMethod(startDate: Date, endDate: Date): Promise<Array<{paymentMethod: string; totalAmount: number; count: number}>>;
+  getDestinationRevenueStats(startDate: Date, endDate: Date): Promise<Array<{destination: string; totalAmount: number; count: number}>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -265,6 +276,20 @@ export class DatabaseStorage implements IStorage {
       
       // Salva le statistiche di peso
       await this.recordWeightStat(savedDocument.id, weightStatData);
+      
+      // Registra i dati di entrate per le statistiche
+      if (formData.package.shippingCost && formData.package.shippingCost > 0) {
+        const revenueStatData = {
+          amount: formData.package.shippingCost,
+          paymentMethod: formData.package.paymentMethod || "Contanti",
+          transportDate: now,
+          transportDay: format(now, 'yyyy-MM-dd'),
+          destination: formData.recipient.city
+        };
+        
+        // Salva le statistiche di entrate
+        await this.recordRevenueStat(savedDocument.id, revenueStatData);
+      }
 
       // Se l'utente vuole salvare il profilo mittente, lo facciamo
       if (formData.saveSender && formData.profileName) {
@@ -526,6 +551,228 @@ export class DatabaseStorage implements IStorage {
       }));
     } catch (error) {
       console.error("Error getting destination stats:", error);
+      throw error;
+    }
+  }
+
+  // Implementazione metodi per il tracciamento delle entrate
+  async recordRevenueStat(documentId: number, data: Omit<InsertRevenueStat, "id" | "documentId">): Promise<RevenueStat> {
+    try {
+      const revenueStatData = {
+        documentId,
+        ...data
+      };
+
+      const [savedStat] = await db
+        .insert(revenueStats)
+        .values(revenueStatData)
+        .returning();
+
+      return savedStat;
+    } catch (error) {
+      console.error("Error recording revenue stat:", error);
+      throw error;
+    }
+  }
+
+  async getRevenueStats(): Promise<RevenueStat[]> {
+    try {
+      return await db
+        .select()
+        .from(revenueStats)
+        .orderBy(desc(revenueStats.transportDate));
+    } catch (error) {
+      console.error("Error getting revenue stats:", error);
+      throw error;
+    }
+  }
+
+  async getDailyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      const day = startOfDay(date);
+      const nextDay = endOfDay(date);
+
+      const [result] = await db
+        .select({
+          totalAmount: sum(revenueStats.amount),
+          count: count(),
+        })
+        .from(revenueStats)
+        .where(
+          and(
+            gte(revenueStats.transportDate, day),
+            lt(revenueStats.transportDate, nextDay)
+          )
+        );
+
+      return {
+        totalAmount: Number(result.totalAmount) || 0,
+        count: Number(result.count) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting daily revenue stats:", error);
+      throw error;
+    }
+  }
+
+  async getWeeklyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Lunedì
+      const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
+
+      const [result] = await db
+        .select({
+          totalAmount: sum(revenueStats.amount),
+          count: count(),
+        })
+        .from(revenueStats)
+        .where(
+          and(
+            gte(revenueStats.transportDate, weekStart),
+            lt(revenueStats.transportDate, weekEnd)
+          )
+        );
+
+      return {
+        totalAmount: Number(result.totalAmount) || 0,
+        count: Number(result.count) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting weekly revenue stats:", error);
+      throw error;
+    }
+  }
+
+  async getMonthlyRevenueStats(date: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+
+      const [result] = await db
+        .select({
+          totalAmount: sum(revenueStats.amount),
+          count: count(),
+        })
+        .from(revenueStats)
+        .where(
+          and(
+            gte(revenueStats.transportDate, monthStart),
+            lt(revenueStats.transportDate, monthEnd)
+          )
+        );
+
+      return {
+        totalAmount: Number(result.totalAmount) || 0,
+        count: Number(result.count) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting monthly revenue stats:", error);
+      throw error;
+    }
+  }
+
+  async getRevenueStatsByPeriod(startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      const [result] = await db
+        .select({
+          totalAmount: sum(revenueStats.amount),
+          count: count(),
+        })
+        .from(revenueStats)
+        .where(
+          and(
+            gte(revenueStats.transportDate, startDate),
+            lt(revenueStats.transportDate, endDate)
+          )
+        );
+
+      return {
+        totalAmount: Number(result.totalAmount) || 0,
+        count: Number(result.count) || 0,
+      };
+    } catch (error) {
+      console.error("Error getting revenue stats by period:", error);
+      throw error;
+    }
+  }
+
+  async getRevenueTrends(days: number): Promise<Array<{date: string; totalAmount: number; count: number}>> {
+    try {
+      const endDate = new Date();
+      const startDate = subDays(endDate, days);
+      
+      // Query SQL per trends giornalieri con GROUP BY
+      const results = await db.execute(sql`
+        SELECT 
+          to_char(transport_date, 'YYYY-MM-DD') as date, 
+          SUM(amount) as total_amount, 
+          COUNT(*) as count
+        FROM revenue_stats
+        WHERE transport_date >= ${startDate.toISOString()}
+        GROUP BY to_char(transport_date, 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `);
+      
+      // Trasforma i risultati
+      return results.map(row => ({
+        date: String(row.date),
+        totalAmount: Number(row.total_amount) || 0,
+        count: Number(row.count) || 0
+      }));
+    } catch (error) {
+      console.error("Error getting revenue trends:", error);
+      throw error;
+    }
+  }
+
+  async getRevenueByPaymentMethod(startDate: Date, endDate: Date): Promise<Array<{paymentMethod: string; totalAmount: number; count: number}>> {
+    try {
+      // Query SQL per raggruppare per metodo di pagamento
+      const results = await db.execute(sql`
+        SELECT 
+          COALESCE(payment_method, 'Contanti') as payment_method, 
+          SUM(amount) as total_amount, 
+          COUNT(*) as count
+        FROM revenue_stats
+        WHERE transport_date >= ${startDate.toISOString()} AND transport_date < ${endDate.toISOString()}
+        GROUP BY payment_method
+        ORDER BY SUM(amount) DESC
+      `);
+      
+      // Trasforma i risultati
+      return results.map(row => ({
+        paymentMethod: String(row.payment_method),
+        totalAmount: Number(row.total_amount) || 0,
+        count: Number(row.count) || 0
+      }));
+    } catch (error) {
+      console.error("Error getting revenue by payment method:", error);
+      throw error;
+    }
+  }
+
+  async getDestinationRevenueStats(startDate: Date, endDate: Date): Promise<Array<{destination: string; totalAmount: number; count: number}>> {
+    try {
+      // Query SQL per raggruppare per destinazione
+      const results = await db.execute(sql`
+        SELECT 
+          COALESCE(destination, 'Altro') as destination, 
+          SUM(amount) as total_amount, 
+          COUNT(*) as count
+        FROM revenue_stats
+        WHERE transport_date >= ${startDate.toISOString()} AND transport_date < ${endDate.toISOString()}
+        GROUP BY destination
+        ORDER BY SUM(amount) DESC
+      `);
+      
+      // Trasforma i risultati
+      return results.map(row => ({
+        destination: String(row.destination),
+        totalAmount: Number(row.total_amount) || 0,
+        count: Number(row.count) || 0
+      }));
+    } catch (error) {
+      console.error("Error getting destination revenue stats:", error);
       throw error;
     }
   }

@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MenuIcon, X, FileText, Archive, UserRound, Users, BarChart2 } from "lucide-react";
+import { MenuIcon, X, FileText, Archive, UserRound, Users, BarChart2, LineChart, EuroIcon } from "lucide-react";
 import { useSidebar } from "@/hooks/use-sidebar";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 
@@ -29,9 +29,14 @@ const sidebarLinks = [
     icon: <Users className="mr-2 h-4 w-4" />,
   },
   {
-    title: "Statistiche",
+    title: "Statistiche Pesi",
     href: "/statistics",
     icon: <BarChart2 className="mr-2 h-4 w-4" />,
+  },
+  {
+    title: "Statistiche Entrate",
+    href: "/income-statistics",
+    icon: <EuroIcon className="mr-2 h-4 w-4" />,
   },
 ];
 

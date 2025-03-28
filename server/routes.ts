@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { senderProfileSchema, recipientProfileSchema, transportFormSchema, insertSenderProfileSchema, insertRecipientProfileSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
-import { addDays, startOfDay, endOfDay, subDays, subMonths, format } from "date-fns";
+import { addDays, startOfDay, endOfDay, subDays, subMonths, format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 
 // Schedule automatic deletion of expired documents
 function scheduleDocumentCleanup() {
@@ -595,6 +595,228 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching destination stats:", error);
       res.status(500).json({ message: "Failed to fetch destination statistics" });
+    }
+  });
+
+  // ----- REVENUE STATISTICS API -----
+  // Get all revenue stats
+  app.get("/api/revenue-stats", async (req, res) => {
+    try {
+      const stats = await storage.getRevenueStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch revenue statistics" });
+    }
+  });
+
+  // Get daily revenue stats
+  app.get("/api/revenue-stats/daily", async (req, res) => {
+    try {
+      // Usa la data di oggi come predefinita o la data specificata
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "Invalid date format. Use ISO format (e.g., 2025-01-15)" });
+      }
+      
+      const stats = await storage.getDailyRevenueStats(date);
+      res.json({
+        date: format(date, 'yyyy-MM-dd'),
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching daily revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch daily revenue statistics" });
+    }
+  });
+
+  // Get weekly revenue stats
+  app.get("/api/revenue-stats/weekly", async (req, res) => {
+    try {
+      // Usa la data di oggi come predefinita o la data specificata
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "Invalid date format. Use ISO format (e.g., 2025-01-15)" });
+      }
+      
+      const stats = await storage.getWeeklyRevenueStats(date);
+      const weekStart = format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      const weekEnd = format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      
+      res.json({
+        period: `${weekStart} - ${weekEnd}`,
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching weekly revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch weekly revenue statistics" });
+    }
+  });
+
+  // Get monthly revenue stats
+  app.get("/api/revenue-stats/monthly", async (req, res) => {
+    try {
+      // Usa la data di oggi come predefinita o la data specificata
+      const dateParam = req.query.date as string;
+      const date = dateParam ? new Date(dateParam) : new Date();
+      
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "Invalid date format. Use ISO format (e.g., 2025-01-15)" });
+      }
+      
+      const stats = await storage.getMonthlyRevenueStats(date);
+      const monthStart = format(startOfMonth(date), 'yyyy-MM-dd');
+      const monthEnd = format(endOfMonth(date), 'yyyy-MM-dd');
+      
+      res.json({
+        period: `${monthStart} - ${monthEnd}`,
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching monthly revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch monthly revenue statistics" });
+    }
+  });
+
+  // Get revenue stats for a specific period
+  app.get("/api/revenue-stats/period", async (req, res) => {
+    try {
+      const startDateParam = req.query.startDate as string;
+      const endDateParam = req.query.endDate as string;
+      
+      if (!startDateParam || !endDateParam) {
+        return res.status(400).json({ message: "Both startDate and endDate are required" });
+      }
+      
+      const startDate = new Date(startDateParam);
+      const endDate = new Date(endDateParam);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({ message: "Invalid date format. Use ISO format (e.g., 2025-01-15)" });
+      }
+      
+      const stats = await storage.getRevenueStatsByPeriod(startDate, endDate);
+      
+      res.json({
+        period: `${format(startDate, 'yyyy-MM-dd')} - ${format(endDate, 'yyyy-MM-dd')}`,
+        ...stats
+      });
+    } catch (error) {
+      console.error("Error fetching period revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch period revenue statistics" });
+    }
+  });
+
+  // Get revenue trends
+  app.get("/api/revenue-stats/trends", async (req, res) => {
+    try {
+      // Numero di giorni da visualizzare (predefinito: 30 giorni)
+      const daysParam = req.query.days as string;
+      const days = daysParam ? parseInt(daysParam) : 30;
+      
+      if (isNaN(days) || days <= 0) {
+        return res.status(400).json({ message: "Invalid days parameter. Must be a positive number" });
+      }
+      
+      const trends = await storage.getRevenueTrends(days);
+      
+      res.json({
+        period: `${format(subDays(new Date(), days), 'yyyy-MM-dd')} - ${format(new Date(), 'yyyy-MM-dd')}`,
+        data: trends
+      });
+    } catch (error) {
+      console.error("Error fetching revenue trends:", error);
+      res.status(500).json({ message: "Failed to fetch revenue trends" });
+    }
+  });
+
+  // Get revenue by payment method
+  app.get("/api/revenue-stats/payment-methods", async (req, res) => {
+    try {
+      // Parse period or default to last 30 days
+      const periodParam = req.query.period as string || '30days';
+      
+      let startDate: Date, endDate: Date;
+      
+      switch (periodParam) {
+        case '7days':
+          startDate = subDays(startOfDay(new Date()), 7);
+          endDate = new Date();
+          break;
+        case '30days':
+          startDate = subDays(startOfDay(new Date()), 30);
+          endDate = new Date();
+          break;
+        case '90days':
+          startDate = subDays(startOfDay(new Date()), 90);
+          endDate = new Date();
+          break;
+        case '1year':
+          startDate = subMonths(startOfDay(new Date()), 12);
+          endDate = new Date();
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid period. Use '7days', '30days', '90days', or '1year'" });
+      }
+      
+      const stats = await storage.getRevenueByPaymentMethod(startDate, endDate);
+      
+      res.json({
+        period: periodParam,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        paymentMethods: stats
+      });
+    } catch (error) {
+      console.error("Error fetching payment method statistics:", error);
+      res.status(500).json({ message: "Failed to fetch payment method statistics" });
+    }
+  });
+
+  // Get revenue by destination
+  app.get("/api/revenue-stats/destinations", async (req, res) => {
+    try {
+      // Parse period or default to last 30 days
+      const periodParam = req.query.period as string || '30days';
+      
+      let startDate: Date, endDate: Date;
+      
+      switch (periodParam) {
+        case '7days':
+          startDate = subDays(startOfDay(new Date()), 7);
+          endDate = new Date();
+          break;
+        case '30days':
+          startDate = subDays(startOfDay(new Date()), 30);
+          endDate = new Date();
+          break;
+        case '90days':
+          startDate = subDays(startOfDay(new Date()), 90);
+          endDate = new Date();
+          break;
+        case '1year':
+          startDate = subMonths(startOfDay(new Date()), 12);
+          endDate = new Date();
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid period. Use '7days', '30days', '90days', or '1year'" });
+      }
+      
+      const stats = await storage.getDestinationRevenueStats(startDate, endDate);
+      
+      res.json({
+        period: periodParam,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        destinations: stats
+      });
+    } catch (error) {
+      console.error("Error fetching destination revenue statistics:", error);
+      res.status(500).json({ message: "Failed to fetch destination revenue statistics" });
     }
   });
 

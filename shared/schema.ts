@@ -68,6 +68,16 @@ export const weightStats = pgTable("weight_stats", {
   // Rimuoviamo il riferimento a operatorId per ora
 });
 
+export const revenueStats = pgTable("revenue_stats", {
+  id: serial("id").primaryKey(),
+  documentId: integer("document_id").references(() => transportDocuments.id),
+  amount: doublePrecision("amount").notNull(),  // importo in euro
+  paymentMethod: text("payment_method"),  // metodo di pagamento
+  transportDate: timestamp("transport_date").notNull().defaultNow(),
+  transportDay: date("transport_day").notNull(),  // Data senza ora per aggregazione
+  destination: text("destination"),  // Città destinazione
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -145,6 +155,12 @@ export const insertWeightStatSchema = createInsertSchema(weightStats, {
   id: true,
 });
 
+export const insertRevenueStatSchema = createInsertSchema(revenueStats, {
+  transportDay: z.string(),  // Ensure transportDay is handled as string
+}).omit({
+  id: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertSenderProfile = z.infer<typeof insertSenderProfileSchema>;
@@ -156,6 +172,8 @@ export type InsertTransportDocument = z.infer<typeof insertTransportDocumentSche
 export type TransportDocument = typeof transportDocuments.$inferSelect;
 export type InsertWeightStat = z.infer<typeof insertWeightStatSchema>;
 export type WeightStat = typeof weightStats.$inferSelect;
+export type InsertRevenueStat = z.infer<typeof insertRevenueStatSchema>;
+export type RevenueStat = typeof revenueStats.$inferSelect;
 
 // Additional helper type for recipient in forms
 export type RecipientFormData = {
