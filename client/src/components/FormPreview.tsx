@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TransportFormData } from "@shared/schema";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { Printer, FileDown } from "lucide-react";
+import { Printer } from "lucide-react";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -22,25 +22,30 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
   
-  // Handle print functionality with window.print()
-  const handlePrint = () => {
-    window.print();
-  };
-  
-  // Handle PDF export
-  const handleExportPDF = async () => {
+  // Handle PDF generation and download
+  const handlePrintAsPDF = async () => {
     if (!printRef.current) return;
     
     try {
+      // Mostra un indicatore di caricamento o feedback all'utente
+      const buttonElement = document.getElementById("print-button");
+      if (buttonElement) {
+        buttonElement.textContent = "Generazione PDF...";
+        buttonElement.setAttribute("disabled", "true");
+      }
+      
       const canvas = await html2canvas(printRef.current, {
-        scale: 2, // Higher scale for better quality
+        scale: 1.2, // Scala ridotta per assicurarsi che tutto entri in un foglio
         useCORS: true,
-        logging: false
+        logging: false,
+        allowTaint: true,
+        width: printRef.current.offsetWidth,
+        height: printRef.current.offsetHeight
       });
       
       const imgData = canvas.toDataURL('image/png');
       
-      // Use A4 size
+      // Crea PDF in formato A4
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -48,11 +53,43 @@ export default function FormPreview({ formData }: FormPreviewProps) {
       });
       
       // A4 dimensions: 210 x 297 mm
-      const imgWidth = 210 - 24; // Account for margins (12mm each side)
-      const position = 10; // Top margin
+      const imgWidth = 210 - 20; // Account for margins
+      const pageHeight = 297;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 12, position, imgWidth, 0);
+      // Assicuriamoci che tutto il contenuto entri in una singola pagina
+      let heightLeft = imgHeight;
+      let position = 10; // Top margin
+      
+      // Aggiungi l'immagine alla prima pagina
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // Se il contenuto è più alto di una pagina, lo comprimiamo ulteriormente
+      if (heightLeft > 0) {
+        // Calcola un fattore di scala adeguato per farlo entrare in una pagina
+        const compressionRatio = 0.75; // Comprimiamo del 25% per assicurarci che entri tutto
+        const newImgWidth = imgWidth * compressionRatio;
+        const newImgHeight = imgHeight * compressionRatio;
+        
+        // Ricostruisci il PDF con la scala corretta
+        pdf.deletePage(1);
+        pdf.addPage();
+        
+        // Aumenta i margini per centrare e posiziona più in alto
+        const horizontalPadding = (210 - newImgWidth) / 2;
+        pdf.addImage(imgData, 'PNG', horizontalPadding, 5, newImgWidth, newImgHeight);
+      }
+      
+      // Salva il PDF
       pdf.save(`MayleaLogistics-${documentId}.pdf`);
+      
+      // Ripristina lo stato del pulsante
+      if (buttonElement) {
+        buttonElement.textContent = "Stampa";
+        buttonElement.removeAttribute("disabled");
+      }
+      
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Impossibile generare il PDF. Riprova più tardi.");
@@ -64,24 +101,15 @@ export default function FormPreview({ formData }: FormPreviewProps) {
       <CardContent className="pt-6">
         <div className="flex justify-between items-center mb-4 print:hidden print-hide">
           <h2 className="text-xl font-semibold text-primary">Anteprima Modulo</h2>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportPDF}
-              className="bg-blue-600 text-white hover:bg-blue-700"
-              title="Esporta come PDF"
-            >
-              <FileDown className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">PDF</span>
-            </Button>
-            <Button
-              onClick={handlePrint}
-              className="bg-primary text-white hover:bg-primary/90"
-              title="Stampa modulo"
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Stampa</span>
-            </Button>
-          </div>
+          <Button
+            id="print-button"
+            onClick={handlePrintAsPDF}
+            className="bg-primary text-white hover:bg-primary/90"
+            title="Scarica come PDF"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Stampa</span>
+          </Button>
         </div>
 
         <div 
