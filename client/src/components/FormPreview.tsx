@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TransportFormData } from "@shared/schema";
@@ -13,6 +13,22 @@ interface FormPreviewProps {
 
 export default function FormPreview({ formData }: FormPreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check if the device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
   
   // Generate random document number
   const documentId = Math.floor(Math.random() * 9000) + 1000;
@@ -20,9 +36,89 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
   
-  // Funzione per utilizzare il comando nativo di stampa del browser
+  // Funzione ottimizzata per la stampa su dispositivi mobili e desktop
   const handlePrint = () => {
-    window.print();
+    if (isMobile) {
+      // Su mobile, creiamo una nuova finestra ottimizzata per la stampa
+      const printContent = printRef.current?.outerHTML || '';
+      const printWindow = window.open('', '_blank');
+      
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Documento di Trasporto</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                @page {
+                  size: A4 portrait;
+                  margin: 0;
+                }
+                body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: Arial, Calibri, Roboto, sans-serif;
+                }
+                .print-container {
+                  transform: scale(0.6);
+                  transform-origin: top center;
+                  width: 210mm;
+                  max-width: 210mm;
+                  overflow: hidden;
+                }
+                .print-section > div:first-child {
+                  position: relative;
+                  height: 140mm;
+                  max-height: 140mm;
+                  padding: 1mm;
+                  margin-bottom: 2mm;
+                  border-bottom: 1px dashed #aaa;
+                  border: 0.5pt solid #e0e0e0;
+                  overflow: hidden;
+                }
+                .print-section > div:last-child {
+                  position: relative;
+                  height: 140mm;
+                  max-height: 140mm;
+                  padding: 1mm;
+                  border: 0.5pt solid #e0e0e0;
+                  overflow: hidden;
+                }
+                .print-section {
+                  font-size: 8pt;
+                }
+                .print-section h3 {
+                  font-weight: 700;
+                  line-height: 1.1;
+                  font-size: 9pt;
+                }
+                .print-section h4 {
+                  font-weight: 700;
+                  line-height: 1.1;
+                  font-size: 8pt;
+                }
+                .print-section p, 
+                .print-section div {
+                  line-height: 1.1;
+                  margin-bottom: 0;
+                  text-align: left;
+                }
+              </style>
+            </head>
+            <body onload="window.print();window.setTimeout(window.close, 1000)">
+              <div class="print-container">
+                ${printContent}
+              </div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
+    } else {
+      // Su desktop, utilizziamo il comando standard
+      window.print();
+    }
   };
 
   return (
