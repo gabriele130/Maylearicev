@@ -109,31 +109,31 @@
     border: none !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    transform: scale(1.0) !important; /* Scala al 100% come richiesto */
+    transform: scale(0.95) !important; /* Scala ridotta per adattare meglio al foglio */
     transform-origin: top center;
     page-break-after: avoid;
     page-break-inside: avoid;
   }
   
-  /* Due moduli impilati verticalmente, ognuno 135mm di altezza */
+  /* Due moduli impilati verticalmente, ognuno 130mm di altezza - riduzione altezza */
   .print-section > div:first-child {
     position: relative;
-    height: 135mm;
-    max-height: 135mm;
-    padding-bottom: 5mm;
-    margin-bottom: 5mm;
+    height: 130mm;
+    max-height: 130mm;
+    padding-bottom: 4mm;
+    margin-bottom: 4mm;
     border-bottom: 1px dashed #aaa !important; /* Linea tratteggiata per taglio */
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
-    padding: 8px !important;
+    padding: 7px !important;
   }
   
   .print-section > div:last-child {
     position: relative;
-    height: 135mm;
-    max-height: 135mm;
-    padding-top: 5mm;
+    height: 130mm;
+    max-height: 130mm;
+    padding-top: 4mm;
     border: 0.5pt solid #e0e0e0 !important; /* Bordo leggero richiesto */
-    padding: 8px !important;
+    padding: 7px !important;
   }
   
   /* Linea di taglio con indicazione */
@@ -174,7 +174,7 @@
   
   /* Miglioramento della leggibilità - dimensione testo 10-11pt come richiesto */
   .print-section {
-    font-size: 10.5pt !important;
+    font-size: 10pt !important; /* Dimensione ridotta */
   }
   
   .print-section h3 {
@@ -186,7 +186,7 @@
   .print-section h4 {
     font-weight: 700 !important; /* Intestazioni in grassetto come richiesto */
     line-height: 1.2 !important;
-    font-size: 10.5pt !important;
+    font-size: 10pt !important; /* Dimensione ridotta */
   }
   
   .print-section p, 

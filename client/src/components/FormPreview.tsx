@@ -40,7 +40,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
         filename: `MayleaLogistics-${documentId}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
-          scale: 2, // Scala per una migliore qualità
+          scale: 1.5, // Scala ridotta per modulo più piccolo
           useCORS: true,
           logging: false,
           letterRendering: true,
@@ -108,7 +108,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-4 print-section text-[10.5pt] mt-2 w-full max-w-[800px] mx-auto"
+          className="border border-gray-300 rounded-lg p-3 print-section text-[10pt] mt-2 w-full max-w-[750px] mx-auto"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-3 mb-3">
