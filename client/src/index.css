@@ -115,7 +115,7 @@
   /* Formattazione base per il contenitore di stampa - SCALA OTTIMIZZATA E CENTRATA */
   .print-section {
     position: fixed !important;
-    top: 0 !important;
+    top: 4mm !important; /* Abbassato leggermente per evitare il taglio dell'intestazione */
     left: 50% !important;
     width: 210mm !important;
     height: 297mm !important;

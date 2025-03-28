@@ -73,7 +73,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   padding: 0;
                   overflow: visible;
                   position: absolute;
-                  top: 0;
+                  top: 4mm;
                   left: 50%;
                 }
                 .print-section {
