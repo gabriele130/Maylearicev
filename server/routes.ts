@@ -59,6 +59,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch sender profile" });
     }
   });
+  
+  // Get transaction history for a sender profile
+  app.get("/api/sender-profiles/:id/transactions", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      // Ottieni il profilo per verificare che esista
+      const profile = await storage.getSenderProfile(id);
+      if (!profile) {
+        return res.status(404).json({ message: "Sender profile not found" });
+      }
+      
+      // Ottieni le transazioni per questo mittente
+      const transactions = await storage.getSenderTransactions(profile.name);
+      
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching sender transactions:", error);
+      res.status(500).json({ message: "Failed to fetch sender transactions" });
+    }
+  });
+  
+  // Get financial records for a sender profile
+  app.get("/api/sender-profiles/:id/financials", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      // Ottieni il profilo per verificare che esista
+      const profile = await storage.getSenderProfile(id);
+      if (!profile) {
+        return res.status(404).json({ message: "Sender profile not found" });
+      }
+      
+      // Ottieni il periodo (default: ultimo anno)
+      const periodParam = req.query.period as string || '1year';
+      let startDate = new Date();
+      const endDate = new Date();
+      
+      switch (periodParam) {
+        case '30days':
+          startDate = subDays(startDate, 30);
+          break;
+        case '90days':
+          startDate = subDays(startDate, 90);
+          break;
+        case '6months':
+          startDate = subDays(startDate, 180);
+          break;
+        case '1year':
+        default:
+          startDate = subMonths(startDate, 12);
+          break;
+      }
+      
+      // Ottieni le statistiche finanziarie per questo mittente
+      const financials = await storage.getSenderFinancials(profile.name, startDate, endDate);
+      
+      res.json({
+        period: periodParam,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        ...financials
+      });
+    } catch (error) {
+      console.error("Error fetching sender financials:", error);
+      res.status(500).json({ message: "Failed to fetch sender financials" });
+    }
+  });
 
   // Create a new sender profile
   app.post("/api/sender-profiles", async (req, res) => {
@@ -196,6 +270,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(profile);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch recipient profile" });
+    }
+  });
+  
+  // Get transaction history for a recipient profile
+  app.get("/api/recipient-profiles/:id/transactions", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      // Ottieni il profilo per verificare che esista
+      const profile = await storage.getRecipientProfile(id);
+      if (!profile) {
+        return res.status(404).json({ message: "Recipient profile not found" });
+      }
+      
+      // Ottieni le transazioni per questo destinatario
+      const transactions = await storage.getRecipientTransactions(profile.name);
+      
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching recipient transactions:", error);
+      res.status(500).json({ message: "Failed to fetch recipient transactions" });
+    }
+  });
+  
+  // Get financial records for a recipient profile
+  app.get("/api/recipient-profiles/:id/financials", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      // Ottieni il profilo per verificare che esista
+      const profile = await storage.getRecipientProfile(id);
+      if (!profile) {
+        return res.status(404).json({ message: "Recipient profile not found" });
+      }
+      
+      // Ottieni il periodo (default: ultimo anno)
+      const periodParam = req.query.period as string || '1year';
+      let startDate = new Date();
+      const endDate = new Date();
+      
+      switch (periodParam) {
+        case '30days':
+          startDate = subDays(startDate, 30);
+          break;
+        case '90days':
+          startDate = subDays(startDate, 90);
+          break;
+        case '6months':
+          startDate = subDays(startDate, 180);
+          break;
+        case '1year':
+        default:
+          startDate = subMonths(startDate, 12);
+          break;
+      }
+      
+      // Ottieni le statistiche finanziarie per questo destinatario
+      const financials = await storage.getRecipientFinancials(profile.name, startDate, endDate);
+      
+      res.json({
+        period: periodParam,
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+        ...financials
+      });
+    } catch (error) {
+      console.error("Error fetching recipient financials:", error);
+      res.status(500).json({ message: "Failed to fetch recipient financials" });
     }
   });
 

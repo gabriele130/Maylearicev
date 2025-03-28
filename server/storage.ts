@@ -16,6 +16,8 @@ export interface IStorage {
   createSenderProfile(profile: Omit<SenderProfile, "id">): Promise<SenderProfile>;
   updateSenderProfile(id: number, profile: Omit<SenderProfile, "id" | "createdAt">): Promise<SenderProfile | undefined>;
   deleteSenderProfile(id: number): Promise<boolean>;
+  getSenderTransactions(senderName: string): Promise<TransportDocument[]>;
+  getSenderFinancials(senderName: string, startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}>;
   
   // Recipient profile methods
   getAllRecipientProfiles(): Promise<RecipientProfile[]>;
@@ -23,6 +25,8 @@ export interface IStorage {
   createRecipientProfile(profile: Omit<RecipientProfile, "id">): Promise<RecipientProfile>;
   updateRecipientProfile(id: number, profile: Omit<RecipientProfile, "id" | "createdAt">): Promise<RecipientProfile | undefined>;
   deleteRecipientProfile(id: number): Promise<boolean>;
+  getRecipientTransactions(recipientName: string): Promise<TransportDocument[]>;
+  getRecipientFinancials(recipientName: string, startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}>;
   
   // Transport document methods
   getAllTransportDocuments(): Promise<TransportDocument[]>;
@@ -798,6 +802,100 @@ export class DatabaseStorage implements IStorage {
       }));
     } catch (error) {
       console.error("Error getting destination revenue stats:", error);
+      throw error;
+    }
+  }
+  
+  // Implementazione metodi per transazioni e statistiche dei mittenti
+  async getSenderTransactions(senderName: string): Promise<TransportDocument[]> {
+    try {
+      // Recupera tutti i documenti di trasporto per questo mittente
+      const transactions = await db
+        .select()
+        .from(transportDocuments)
+        .where(eq(transportDocuments.senderName, senderName))
+        .orderBy(desc(transportDocuments.createdAt));
+      
+      return transactions;
+    } catch (error) {
+      console.error(`Error fetching transactions for sender ${senderName}:`, error);
+      throw error;
+    }
+  }
+  
+  async getSenderFinancials(senderName: string, startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      // Query SQL per ottenere il totale delle entrate per un mittente specifico nel periodo
+      const results = await db.execute(sql`
+        SELECT 
+          SUM(rs.amount) as total_amount, 
+          COUNT(*) as count
+        FROM revenue_stats rs
+        JOIN transport_documents td ON rs.document_id = td.id
+        WHERE 
+          td.sender_name = ${senderName} AND
+          rs.transport_date >= ${startDate.toISOString()} AND 
+          rs.transport_date < ${endDate.toISOString()}
+      `);
+      
+      // Se non ci sono risultati o il totale è null, restituisce zero
+      if (!results.length || results[0].total_amount === null) {
+        return { totalAmount: 0, count: 0 };
+      }
+      
+      return {
+        totalAmount: Number(results[0].total_amount) || 0,
+        count: Number(results[0].count) || 0
+      };
+    } catch (error) {
+      console.error(`Error getting financials for sender ${senderName}:`, error);
+      throw error;
+    }
+  }
+  
+  // Implementazione metodi per transazioni e statistiche dei destinatari
+  async getRecipientTransactions(recipientName: string): Promise<TransportDocument[]> {
+    try {
+      // Recupera tutti i documenti di trasporto per questo destinatario
+      const transactions = await db
+        .select()
+        .from(transportDocuments)
+        .where(eq(transportDocuments.recipientName, recipientName))
+        .orderBy(desc(transportDocuments.createdAt));
+      
+      return transactions;
+    } catch (error) {
+      console.error(`Error fetching transactions for recipient ${recipientName}:`, error);
+      throw error;
+    }
+  }
+  
+  async getRecipientFinancials(recipientName: string, startDate: Date, endDate: Date): Promise<{totalAmount: number; count: number}> {
+    try {
+      // Query SQL per ottenere il totale delle entrate per un destinatario specifico nel periodo
+      const results = await db.execute(sql`
+        SELECT 
+          SUM(rs.amount) as total_amount, 
+          COUNT(*) as count
+        FROM revenue_stats rs
+        JOIN transport_documents td ON rs.document_id = td.id
+        WHERE 
+          td.recipient_name = ${recipientName} AND
+          rs.transport_date >= ${startDate.toISOString()} AND 
+          rs.transport_date < ${endDate.toISOString()}
+      `);
+      
+      // Se non ci sono risultati o il totale è null, restituisce zero
+      if (!results.length || results[0].total_amount === null) {
+        return { totalAmount: 0, count: 0 };
+      }
+      
+      return {
+        totalAmount: Number(results[0].total_amount) || 0,
+        count: Number(results[0].count) || 0
+      };
+    } catch (error) {
+      console.error(`Error getting financials for recipient ${recipientName}:`, error);
       throw error;
     }
   }
