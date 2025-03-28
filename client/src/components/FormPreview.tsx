@@ -294,8 +294,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="grid grid-cols-2 gap-2 mb-1">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-[9px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-1">LIMITAZIONI DI RESPONSABILITÀ</h4>
-                <p className="text-[8px] text-gray-700 leading-tight">
-                  Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati.
+                <p className="text-[7px] text-gray-700 leading-tight">
+                  Non siamo responsabili se noi non adempiamo alle obbligazioni nei vostri confronti conseguentemente a: a) circostanze al di là del nostro controllo quali: eventi naturali inclusi terremoti, cicloni, tempeste, allagamenti, incendi, malattie, nebbia, neve o gelo; eventi di forza maggiore inclusi: guerre, incidenti, atti terroristici, scioperi, embarghi, pericoli negli spazi aerei, vertenze locali od insurrezioni popolari; sconvolgimenti nazionali o locali nelle reti di trasporto via aria o via terra e problemi meccanici ai modi di trasporto od ai macchinari. In concomitanza con l'art. 14 seguente, non siamo responsabili per qualsiasi smarrimento, danno o ritardo occorso alla vostra spedizione. La nostra responsabilità per i rischi di perdita o danneggiamento ai prodotti durante il trasporto, sarà disciplinata dall'art. 1696 c.c. così come modificato dal Decreto Legislativo 21.11.2005 n. 286, e dunque limitata ad 1 € (un Euro) per ogni chilogrammo di merce perduta od avariata.
                 </p>
               </div>
               <div className="border border-gray-300 rounded p-2">
@@ -440,8 +440,8 @@ export default function FormPreview({ formData }: FormPreviewProps) {
             <div className="grid grid-cols-2 gap-2">
               <div className="border border-gray-300 rounded p-2">
                 <h4 className="text-[9px] font-semibold bg-gray-100 -mt-2 -mx-2 px-2 py-1 mb-1">LIMITAZIONI DI RESPONSABILITÀ</h4>
-                <p className="text-[8px] text-gray-700 leading-tight">
-                  Il mittente dichiara di accettare le condizioni generali di trasporto di MAYLEA – Logistics & Transport e solleva l'azienda da ogni responsabilità per smarrimento, danneggiamento, ritardo o eventi non direttamente imputabili alla stessa. In caso di merci assicurate, il rimborso sarà effettuato solo previa verifica delle condizioni e nei limiti indicati.
+                <p className="text-[7px] text-gray-700 leading-tight">
+                  Non siamo responsabili se noi non adempiamo alle obbligazioni nei vostri confronti conseguentemente a: a) circostanze al di là del nostro controllo quali: eventi naturali inclusi terremoti, cicloni, tempeste, allagamenti, incendi, malattie, nebbia, neve o gelo; eventi di forza maggiore inclusi: guerre, incidenti, atti terroristici, scioperi, embarghi, pericoli negli spazi aerei, vertenze locali od insurrezioni popolari; sconvolgimenti nazionali o locali nelle reti di trasporto via aria o via terra e problemi meccanici ai modi di trasporto od ai macchinari. In concomitanza con l'art. 14 seguente, non siamo responsabili per qualsiasi smarrimento, danno o ritardo occorso alla vostra spedizione. La nostra responsabilità per i rischi di perdita o danneggiamento ai prodotti durante il trasporto, sarà disciplinata dall'art. 1696 c.c. così come modificato dal Decreto Legislativo 21.11.2005 n. 286, e dunque limitata ad 1 € (un Euro) per ogni chilogrammo di merce perduta od avariata.
                 </p>
               </div>
               <div className="border border-gray-300 rounded p-2">
