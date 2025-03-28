@@ -36,11 +36,11 @@ export default function FormPreview({ formData }: FormPreviewProps) {
       
       // Configura le opzioni per html2pdf
       const options = {
-        margin: [10, 10, 10, 10], // top, right, bottom, left in mm
+        margin: [5, 5, 5, 5], // top, right, bottom, left in mm - margini ridotti
         filename: `MayleaLogistics-${documentId}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
-          scale: 1.5, // Scala ridotta per modulo più piccolo
+          scale: 1.2, // Scala ridotta ulteriormente
           useCORS: true,
           logging: false,
           letterRendering: true,
@@ -108,7 +108,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-3 print-section text-[10pt] mt-2 w-full max-w-[750px] mx-auto"
+          className="border border-gray-300 rounded-lg p-2 print-section text-[9pt] mt-2 w-full max-w-[700px] mx-auto"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-3 mb-3">
