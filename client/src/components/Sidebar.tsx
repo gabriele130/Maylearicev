@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MenuIcon, X, FileText, Archive, Users } from "lucide-react";
+import { MenuIcon, X, FileText, Archive, UserRound, Users } from "lucide-react";
 import { useSidebar } from "@/hooks/use-sidebar";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 
@@ -19,8 +19,13 @@ const sidebarLinks = [
     icon: <Archive className="mr-2 h-4 w-4" />,
   },
   {
-    title: "Clienti",
-    href: "/clients",
+    title: "Mittenti",
+    href: "/senders",
+    icon: <UserRound className="mr-2 h-4 w-4" />,
+  },
+  {
+    title: "Destinatari",
+    href: "/recipients",
     icon: <Users className="mr-2 h-4 w-4" />,
   },
 ];

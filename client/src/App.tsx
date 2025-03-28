@@ -5,7 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Archive from "@/pages/Archive";
-import Clients from "@/pages/Clients";
+import Senders from "@/pages/Senders";
+import Recipients from "@/pages/Recipients";
 import Sidebar from "@/components/Sidebar";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 
@@ -14,7 +15,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/archive" component={Archive} />
-      <Route path="/clients" component={Clients} />
+      <Route path="/senders" component={Senders} />
+      <Route path="/recipients" component={Recipients} />
+      <Route path="/clients" component={Senders} /> {/* Redirect legacy route */}
       <Route component={NotFound} />
     </Switch>
   );
