@@ -22,6 +22,7 @@ export default function Home() {
       email: "",
     },
     recipient: {
+      profileName: "",
       name: "",
       vat: "",
       address: "",
@@ -43,7 +44,9 @@ export default function Home() {
       notes: "",
     },
     saveSender: false,
+    saveRecipient: false,
     profileName: "",
+    recipientProfileName: "",
   });
 
   // Mutation for saving transport document
@@ -61,9 +64,12 @@ export default function Home() {
       });
       // Invalidate query cache to refresh any document lists
       queryClient.invalidateQueries({ queryKey: ['/api/transport-documents'] });
-      // If we're saving sender profile, also refresh that list
+      // If we're saving sender/recipient profile, also refresh those lists
       if (formData.saveSender) {
         queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
+      }
+      if (formData.saveRecipient) {
+        queryClient.invalidateQueries({ queryKey: ['/api/recipient-profiles'] });
       }
     },
     onError: (error) => {

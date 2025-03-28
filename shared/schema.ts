@@ -21,6 +21,19 @@ export const senderProfiles = pgTable("sender_profiles", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const recipientProfiles = pgTable("recipient_profiles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  profileName: text("profile_name").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  postcode: text("postcode").notNull(),
+  phone: text("phone").notNull(),
+  vat: text("vat"),
+  email: text("email"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const transportDocuments = pgTable("transport_documents", {
   id: serial("id").primaryKey(),
   documentNumber: text("document_number").notNull().unique(),
@@ -52,7 +65,12 @@ export const insertSenderProfileSchema = createInsertSchema(senderProfiles).omit
   createdAt: true,
 });
 
-export const senderProfileSchema = z.object({
+export const insertRecipientProfileSchema = createInsertSchema(recipientProfiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const profileSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
   profileName: z.string().min(1, "Nome del profilo è richiesto"),
@@ -68,17 +86,12 @@ export const senderProfileSchema = z.object({
   ]).optional(),
 });
 
+export const senderProfileSchema = profileSchema;
+export const recipientProfileSchema = profileSchema;
+
 export const transportFormSchema = z.object({
   sender: senderProfileSchema,
-  recipient: z.object({
-    name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
-    address: z.string().min(1, "Indirizzo è richiesto"),
-    city: z.string().min(1, "Città è richiesta"),
-    postcode: z.string().min(1, "CAP è richiesto"),
-    phone: z.string().min(1, "Telefono è richiesto"),
-    vat: z.string().optional().nullable(),
-    email: z.string().email("Email non valida").optional().nullable(),
-  }),
+  recipient: recipientProfileSchema,
   package: z.object({
     count: z.coerce.number().min(1, "Numero Colli deve essere almeno 1"),
     weight: z.coerce.number().min(0.1, "Peso deve essere maggiore di 0"),
@@ -99,7 +112,9 @@ export const transportFormSchema = z.object({
     notes: z.string().optional().nullable(),
   }),
   saveSender: z.boolean().optional().default(false),
+  saveRecipient: z.boolean().optional().default(false),
   profileName: z.string().optional().nullable(),
+  recipientProfileName: z.string().optional().nullable(),
 });
 
 export const insertTransportDocumentSchema = createInsertSchema(transportDocuments).omit({
@@ -111,6 +126,20 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertSenderProfile = z.infer<typeof insertSenderProfileSchema>;
 export type SenderProfile = typeof senderProfiles.$inferSelect;
+export type InsertRecipientProfile = z.infer<typeof insertRecipientProfileSchema>;
+export type RecipientProfile = typeof recipientProfiles.$inferSelect;
 export type TransportFormData = z.infer<typeof transportFormSchema>;
 export type InsertTransportDocument = z.infer<typeof insertTransportDocumentSchema>;
 export type TransportDocument = typeof transportDocuments.$inferSelect;
+
+// Additional helper type for recipient in forms
+export type RecipientFormData = {
+  name: string;
+  address: string;
+  city: string;
+  postcode: string;
+  phone: string;
+  vat?: string | null;
+  email?: string | null;
+  profileName?: string;
+};

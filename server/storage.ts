@@ -1,4 +1,4 @@
-import { users, senderProfiles, transportDocuments, type User, type InsertUser, type SenderProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData } from "@shared/schema";
+import { users, senderProfiles, recipientProfiles, transportDocuments, type User, type InsertUser, type SenderProfile, type RecipientProfile, type TransportDocument, type InsertTransportDocument, type TransportFormData } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, lt, gte } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -16,6 +16,13 @@ export interface IStorage {
   createSenderProfile(profile: Omit<SenderProfile, "id">): Promise<SenderProfile>;
   updateSenderProfile(id: number, profile: Omit<SenderProfile, "id" | "createdAt">): Promise<SenderProfile | undefined>;
   deleteSenderProfile(id: number): Promise<boolean>;
+  
+  // Recipient profile methods
+  getAllRecipientProfiles(): Promise<RecipientProfile[]>;
+  getRecipientProfile(id: number): Promise<RecipientProfile | undefined>;
+  createRecipientProfile(profile: Omit<RecipientProfile, "id">): Promise<RecipientProfile>;
+  updateRecipientProfile(id: number, profile: Omit<RecipientProfile, "id" | "createdAt">): Promise<RecipientProfile | undefined>;
+  deleteRecipientProfile(id: number): Promise<boolean>;
   
   // Transport document methods
   getAllTransportDocuments(): Promise<TransportDocument[]>;
@@ -108,6 +115,72 @@ export class DatabaseStorage implements IStorage {
     
     return result.length > 0;
   }
+
+  // Implementazione metodi per i profili destinatario
+  async getAllRecipientProfiles(): Promise<RecipientProfile[]> {
+    try {
+      // Sort by creation date descending (newest first)
+      console.log("Fetching all recipient profiles from database");
+      const profiles = await db.select().from(recipientProfiles).orderBy(desc(recipientProfiles.createdAt));
+      console.log("Fetched recipient profiles:", profiles);
+      return profiles;
+    } catch (error) {
+      console.error("Error fetching recipient profiles:", error);
+      throw error;
+    }
+  }
+
+  async getRecipientProfile(id: number): Promise<RecipientProfile | undefined> {
+    const [profile] = await db.select().from(recipientProfiles).where(eq(recipientProfiles.id, id));
+    return profile || undefined;
+  }
+
+  async createRecipientProfile(profile: Omit<RecipientProfile, "id">): Promise<RecipientProfile> {
+    // Handle nullable fields properly for database
+    const dbProfile = {
+      ...profile,
+      vat: profile.vat || null,
+      email: profile.email || null
+    };
+    
+    const [savedProfile] = await db
+      .insert(recipientProfiles)
+      .values(dbProfile)
+      .returning();
+    
+    return savedProfile;
+  }
+
+  async updateRecipientProfile(id: number, profile: Omit<RecipientProfile, "id" | "createdAt">): Promise<RecipientProfile | undefined> {
+    try {
+      // Handle nullable fields properly
+      const dbProfile = {
+        ...profile,
+        vat: profile.vat || null,
+        email: profile.email || null
+      };
+      
+      const [updatedProfile] = await db
+        .update(recipientProfiles)
+        .set(dbProfile)
+        .where(eq(recipientProfiles.id, id))
+        .returning();
+      
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error updating recipient profile:", error);
+      throw error;
+    }
+  }
+
+  async deleteRecipientProfile(id: number): Promise<boolean> {
+    const result = await db
+      .delete(recipientProfiles)
+      .where(eq(recipientProfiles.id, id))
+      .returning({ id: recipientProfiles.id });
+    
+    return result.length > 0;
+  }
   
   async getAllTransportDocuments(): Promise<TransportDocument[]> {
     try {
@@ -166,6 +239,44 @@ export class DatabaseStorage implements IStorage {
         .insert(transportDocuments)
         .values(newDocument)
         .returning();
+
+      // Se l'utente vuole salvare il profilo mittente, lo facciamo
+      if (formData.saveSender && formData.profileName) {
+        // Crea un oggetto profilo dal mittente
+        const senderProfile = {
+          name: formData.sender.name,
+          profileName: formData.profileName, // Usa il nome profilo specificato
+          address: formData.sender.address,
+          city: formData.sender.city,
+          postcode: formData.sender.postcode,
+          phone: formData.sender.phone,
+          vat: formData.sender.vat || null,
+          email: formData.sender.email || null,
+          createdAt: new Date()
+        };
+        
+        // Salva il profilo mittente
+        await this.createSenderProfile(senderProfile);
+      }
+
+      // Se l'utente vuole salvare il profilo destinatario, lo facciamo
+      if (formData.saveRecipient && formData.recipientProfileName) {
+        // Crea un oggetto profilo dal destinatario
+        const recipientProfile = {
+          name: formData.recipient.name,
+          profileName: formData.recipientProfileName, // Usa il nome profilo specificato
+          address: formData.recipient.address,
+          city: formData.recipient.city,
+          postcode: formData.recipient.postcode,
+          phone: formData.recipient.phone,
+          vat: formData.recipient.vat || null,
+          email: formData.recipient.email || null,
+          createdAt: new Date()
+        };
+        
+        // Salva il profilo destinatario
+        await this.createRecipientProfile(recipientProfile);
+      }
       
       return savedDocument;
     } catch (error) {

@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { TransportFormData, transportFormSchema, SenderProfile } from "@shared/schema";
+import { 
+  TransportFormData, 
+  transportFormSchema, 
+  SenderProfile, 
+  RecipientProfile,
+  RecipientFormData 
+} from "@shared/schema";
 
 interface LogisticsFormProps {
   onFormDataChange: (data: TransportFormData) => void;
@@ -17,21 +23,32 @@ interface LogisticsFormProps {
 export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) {
   // State to store and manage sender profiles
   const [senderProfiles, setSenderProfiles] = useState<SenderProfile[]>([]);
+  const [recipientProfiles, setRecipientProfiles] = useState<RecipientProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [selectedRecipientProfileId, setSelectedRecipientProfileId] = useState<string | null>(null);
   const [saveSenderProfile, setSaveSenderProfile] = useState(false);
+  const [saveRecipientProfile, setSaveRecipientProfile] = useState(false);
   
-  // Load sender profiles on component mount
+  // Load sender and recipient profiles on component mount
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await fetch("/api/sender-profiles");
-        if (response.ok) {
-          const profiles = await response.json();
+        // Fetch sender profiles
+        const senderResponse = await fetch("/api/sender-profiles");
+        if (senderResponse.ok) {
+          const profiles = await senderResponse.json();
           setSenderProfiles(profiles);
         }
+        
+        // Fetch recipient profiles
+        const recipientResponse = await fetch("/api/recipient-profiles");
+        if (recipientResponse.ok) {
+          const profiles = await recipientResponse.json();
+          setRecipientProfiles(profiles);
+        }
       } catch (error) {
-        console.error("Error loading sender profiles:", error);
+        console.error("Error loading profiles:", error);
       } finally {
         setLoadingProfiles(false);
       }
@@ -130,7 +147,65 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         setSelectedProfileId(newProfile.id.toString());
       }
     } catch (error) {
-      console.error("Error saving profile:", error);
+      console.error("Error saving sender profile:", error);
+    }
+  };
+  
+  // Handle recipient profile selection
+  const handleRecipientProfileSelect = (profileId: string) => {
+    setSelectedRecipientProfileId(profileId);
+    
+    if (profileId && profileId !== "new") {
+      const selectedProfile = recipientProfiles.find(
+        (profile: RecipientProfile) => profile.id.toString() === profileId
+      );
+      
+      if (selectedProfile) {
+        form.setValue("recipient", {
+          name: selectedProfile.name,
+          address: selectedProfile.address,
+          city: selectedProfile.city,
+          postcode: selectedProfile.postcode,
+          phone: selectedProfile.phone,
+          vat: selectedProfile.vat || "",
+          email: selectedProfile.email || "",
+          profileName: selectedProfile.profileName || selectedProfile.name,
+        });
+      }
+    }
+  };
+  
+  // Handle saving a new recipient profile
+  const handleSaveRecipientProfile = async () => {
+    const recipientData = form.getValues("recipient");
+    const formValues = form.getValues();
+    // Use the custom profile name if provided, otherwise use name + address
+    const profileName = formValues.recipientProfileName || `${recipientData.name} (${recipientData.address})`;
+    
+    try {
+      const response = await fetch("/api/recipient-profiles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...recipientData,
+          profileName,
+        }),
+      });
+      
+      if (response.ok) {
+        const newProfile = await response.json();
+        setRecipientProfiles([...recipientProfiles, newProfile]);
+        setSaveRecipientProfile(false);
+        // Clear the profile name field
+        form.setValue("recipientProfileName", "");
+        
+        // Select the newly created profile
+        setSelectedRecipientProfileId(newProfile.id.toString());
+      }
+    } catch (error) {
+      console.error("Error saving recipient profile:", error);
     }
   };
   
@@ -138,6 +213,11 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
   const onFormChange = () => {
     // Get the current form values and pass them to the parent component
     const currentData = form.getValues();
+    
+    // Add the saveRecipient flag based on the checkbox state
+    currentData.saveRecipient = saveRecipientProfile;
+    
+    // Pass the updated data to parent
     onFormDataChange(currentData);
   };
   
@@ -310,6 +390,69 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                     </FormItem>
                   )}
                 />
+              </div>
+            </div>
+
+            {/* Recipient Profile Selection */}
+            <div className="space-y-4">
+              <h3 className="text-md font-medium border-b border-gray-200 pb-2">Profili Destinatario</h3>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Select 
+                  onValueChange={handleRecipientProfileSelect} 
+                  value={selectedRecipientProfileId || ""}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Seleziona profilo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Nuovo Profilo</SelectItem>
+                    {recipientProfiles.map((profile: RecipientProfile) => (
+                      <SelectItem key={profile.id} value={profile.id.toString()}>
+                        {profile.profileName || profile.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="saveRecipientProfile"
+                    checked={saveRecipientProfile}
+                    onCheckedChange={(checked) => setSaveRecipientProfile(!!checked)}
+                  />
+                  <label
+                    htmlFor="saveRecipientProfile"
+                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                    Salva come nuovo profilo
+                  </label>
+                </div>
+                
+                {saveRecipientProfile && (
+                  <FormField
+                    control={form.control}
+                    name="recipientProfileName"
+                    render={({ field }) => (
+                      <FormItem className="flex-grow ml-2">
+                        <FormControl>
+                          <Input placeholder="Nome profilo" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
+                {saveRecipientProfile && (
+                  <Button
+                    type="button"
+                    onClick={handleSaveRecipientProfile}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Salva Profilo
+                  </Button>
+                )}
               </div>
             </div>
 

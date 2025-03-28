@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { senderProfileSchema, transportFormSchema, insertSenderProfileSchema } from "@shared/schema";
+import { senderProfileSchema, recipientProfileSchema, transportFormSchema, insertSenderProfileSchema, insertRecipientProfileSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -28,6 +28,8 @@ function scheduleDocumentCleanup() {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Start document cleanup scheduler
   scheduleDocumentCleanup();
+
+  // ----- SENDER PROFILES API -----
   // Get all sender profiles
   app.get("/api/sender-profiles", async (req, res) => {
     try {
@@ -166,6 +168,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ----- RECIPIENT PROFILES API -----
+  // Get all recipient profiles
+  app.get("/api/recipient-profiles", async (req, res) => {
+    try {
+      const profiles = await storage.getAllRecipientProfiles();
+      res.json(profiles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch recipient profiles" });
+    }
+  });
+
+  // Get recipient profile by ID
+  app.get("/api/recipient-profiles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      const profile = await storage.getRecipientProfile(id);
+      if (!profile) {
+        return res.status(404).json({ message: "Recipient profile not found" });
+      }
+      
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch recipient profile" });
+    }
+  });
+
+  // Create a new recipient profile
+  app.post("/api/recipient-profiles", async (req, res) => {
+    try {
+      console.log("Received recipient profile data:", JSON.stringify(req.body));
+      
+      // First use the user-facing schema to validate basic format
+      const userProfileData = recipientProfileSchema.parse({
+        ...req.body,
+        // Assicuriamoci che i campi opzionali siano gestiti correttamente
+        vat: req.body.vat === undefined ? null : req.body.vat,
+        email: req.body.email === undefined ? null : req.body.email
+      });
+      
+      // Then prepare data for database insert
+      const dbProfileData = {
+        name: userProfileData.name,
+        profileName: userProfileData.profileName,
+        vat: userProfileData.vat as string | null, 
+        address: userProfileData.address,
+        city: userProfileData.city,
+        postcode: userProfileData.postcode,
+        phone: userProfileData.phone,
+        email: userProfileData.email as string | null,
+        createdAt: new Date()
+      };
+      
+      // Save to storage
+      const savedProfile = await storage.createRecipientProfile(dbProfileData);
+      
+      res.status(201).json(savedProfile);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        console.error("Validation error:", validationError.message);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating recipient profile:", error);
+      res.status(500).json({ message: "Failed to create recipient profile" });
+    }
+  });
+
+  // Update a recipient profile
+  app.put("/api/recipient-profiles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      console.log("Updating recipient profile with ID:", id);
+      console.log("Received update data:", JSON.stringify(req.body));
+      
+      // Validate the input data
+      const userProfileData = recipientProfileSchema.parse({
+        ...req.body,
+        vat: req.body.vat === undefined ? null : req.body.vat,
+        email: req.body.email === undefined ? null : req.body.email
+      });
+      
+      // Prepare data for database update
+      const dbProfileData = {
+        name: userProfileData.name,
+        profileName: userProfileData.profileName,
+        address: userProfileData.address,
+        city: userProfileData.city,
+        postcode: userProfileData.postcode,
+        phone: userProfileData.phone,
+        vat: userProfileData.vat === undefined ? null : userProfileData.vat, 
+        email: userProfileData.email === undefined ? null : userProfileData.email
+      };
+      
+      // Update in storage
+      const updatedProfile = await storage.updateRecipientProfile(id, dbProfileData);
+      if (!updatedProfile) {
+        return res.status(404).json({ message: "Recipient profile not found" });
+      }
+      
+      res.json(updatedProfile);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        console.error("Validation error:", validationError.message);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error updating recipient profile:", error);
+      res.status(500).json({ message: "Failed to update recipient profile" });
+    }
+  });
+
+  // Delete a recipient profile
+  app.delete("/api/recipient-profiles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid profile ID" });
+      }
+      
+      const success = await storage.deleteRecipientProfile(id);
+      if (!success) {
+        return res.status(404).json({ message: "Recipient profile not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete recipient profile" });
+    }
+  });
+
+  // ----- TRANSPORT DOCUMENTS API -----
   // Get all transport documents
   app.get("/api/transport-documents", async (req, res) => {
     try {
@@ -237,6 +378,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         } catch (profileError) {
           console.error("Error saving sender profile from document:", profileError);
+          // Continue even if profile saving fails
+        }
+      }
+      
+      // If the user wants to save the recipient profile, do it
+      if (formData.saveRecipient && formData.recipient) {
+        try {
+          // Use recipient name as profile name if not provided
+          const profileName = `${formData.recipient.name} (${formData.recipient.address})`;
+          
+          // Check if profile already exists by matching name and address
+          const existingProfiles = await storage.getAllRecipientProfiles();
+          const exists = existingProfiles.some(
+            p => p.name === formData.recipient.name && p.address === formData.recipient.address
+          );
+          
+          if (!exists) {
+            await storage.createRecipientProfile({
+              name: formData.recipient.name,
+              profileName: profileName,
+              address: formData.recipient.address,
+              city: formData.recipient.city,
+              postcode: formData.recipient.postcode,
+              phone: formData.recipient.phone,
+              vat: formData.recipient.vat === undefined ? null : formData.recipient.vat,
+              email: formData.recipient.email === undefined ? null : formData.recipient.email,
+              createdAt: new Date()
+            });
+          }
+        } catch (profileError) {
+          console.error("Error saving recipient profile from document:", profileError);
           // Continue even if profile saving fails
         }
       }
