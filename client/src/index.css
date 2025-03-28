@@ -109,7 +109,7 @@
     border: none !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    transform: scale(0.8) !important; /* Scala ridotta significativamente */
+    transform: scale(0.95) !important; /* Ripristinata la scala originale */
     transform-origin: top center;
     page-break-after: avoid;
     page-break-inside: avoid;
