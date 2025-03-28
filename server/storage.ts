@@ -341,24 +341,79 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteTransportDocument(id: number): Promise<boolean> {
-    const result = await db
-      .delete(transportDocuments)
-      .where(eq(transportDocuments.id, id))
-      .returning({ id: transportDocuments.id });
-    
-    return result.length > 0;
+    try {
+      // Prima eliminiamo le statistiche associate al documento
+      await db
+        .delete(weightStats)
+        .where(eq(weightStats.documentId, id));
+      
+      // Eliminiamo anche le statistiche di entrate
+      await db
+        .delete(revenueStats)
+        .where(eq(revenueStats.documentId, id));
+      
+      // Infine eliminiamo il documento di trasporto
+      const result = await db
+        .delete(transportDocuments)
+        .where(eq(transportDocuments.id, id))
+        .returning({ id: transportDocuments.id });
+      
+      console.log(`Deleted document ID ${id} with related statistics`);
+      return result.length > 0;
+    } catch (error) {
+      console.error(`Error deleting transport document ID ${id}:`, error);
+      throw error;
+    }
   }
   
   async deleteExpiredDocuments(): Promise<number> {
     try {
-      // Delete documents older than 4 months
+      // Prima otteniamo gli ID dei documenti scaduti
       const now = new Date();
-      const result = await db
-        .delete(transportDocuments)
-        .where(lt(transportDocuments.expiresAt, now))
-        .returning({ id: transportDocuments.id });
+      const expiredDocs = await db
+        .select({ id: transportDocuments.id })
+        .from(transportDocuments)
+        .where(lt(transportDocuments.expiresAt, now));
       
-      return result.length;
+      const expiredIds = expiredDocs.map(doc => doc.id);
+      
+      // Se non ci sono documenti scaduti, restituisci 0
+      if (expiredIds.length === 0) {
+        return 0;
+      }
+      
+      // Per ogni documento scaduto, eliminiamo le statistiche associate e poi il documento stesso
+      let deletedCount = 0;
+      
+      for (const id of expiredIds) {
+        try {
+          // Eliminiamo le statistiche dei pesi
+          await db
+            .delete(weightStats)
+            .where(eq(weightStats.documentId, id));
+          
+          // Eliminiamo le statistiche delle entrate
+          await db
+            .delete(revenueStats)
+            .where(eq(revenueStats.documentId, id));
+          
+          // Eliminiamo il documento
+          const deleteResult = await db
+            .delete(transportDocuments)
+            .where(eq(transportDocuments.id, id))
+            .returning({ id: transportDocuments.id });
+            
+          if (deleteResult.length > 0) {
+            deletedCount++;
+          }
+        } catch (err) {
+          console.error(`Error deleting expired document ID ${id}:`, err);
+          // Continuiamo con il prossimo documento
+        }
+      }
+      
+      console.log(`Deleted ${deletedCount} expired documents with associated statistics`);
+      return deletedCount;
     } catch (error) {
       console.error("Error deleting expired documents:", error);
       throw error;
