@@ -617,15 +617,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dateParam = req.query.date as string;
       const date = dateParam ? new Date(dateParam) : new Date();
       
+      console.log("Daily revenue stats request for date:", date);
+      
       if (isNaN(date.getTime())) {
         return res.status(400).json({ message: "Invalid date format. Use ISO format (e.g., 2025-01-15)" });
       }
       
       const stats = await storage.getDailyRevenueStats(date);
-      res.json({
+      console.log("Daily revenue stats results:", stats);
+      
+      const response = {
         date: format(date, 'yyyy-MM-dd'),
         ...stats
-      });
+      };
+      
+      console.log("Daily revenue response:", response);
+      res.json(response);
     } catch (error) {
       console.error("Error fetching daily revenue statistics:", error);
       res.status(500).json({ message: "Failed to fetch daily revenue statistics" });

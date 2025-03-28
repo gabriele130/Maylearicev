@@ -591,7 +591,25 @@ export class DatabaseStorage implements IStorage {
     try {
       const day = startOfDay(date);
       const nextDay = endOfDay(date);
+      
+      console.log("Getting daily revenue stats between:", day.toISOString(), "and", nextDay.toISOString());
 
+      // Prima verifichiamo se ci sono dati in questo intervallo di tempo
+      const revenueData = await db
+        .select()
+        .from(revenueStats)
+        .where(
+          and(
+            gte(revenueStats.transportDate, day),
+            lt(revenueStats.transportDate, nextDay)
+          )
+        );
+      
+      console.log("Found revenue records for this day:", revenueData.length);
+      if (revenueData.length > 0) {
+        console.log("Sample record:", revenueData[0]);
+      }
+      
       const [result] = await db
         .select({
           totalAmount: sum(revenueStats.amount),
@@ -604,11 +622,18 @@ export class DatabaseStorage implements IStorage {
             lt(revenueStats.transportDate, nextDay)
           )
         );
-
-      return {
+      
+      console.log("Daily revenue query result:", result);
+      
+      // Assicuriamoci che i valori siano numeri validi
+      const response = {
         totalAmount: Number(result.totalAmount) || 0,
         count: Number(result.count) || 0,
       };
+      
+      console.log("Formatted daily revenue response:", response);
+      
+      return response;
     } catch (error) {
       console.error("Error getting daily revenue stats:", error);
       throw error;

@@ -71,14 +71,27 @@ export default function IncomeStatistics() {
   
   // Dati giornalieri (oggi)
   const today = new Date();
-  const { data: dailyData } = useQuery({
+  const { data: dailyData, isError: dailyError, error: dailyErrorDetails } = useQuery({
     queryKey: ["/api/revenue-stats/daily", format(today, "yyyy-MM-dd")],
     queryFn: async () => {
+      console.log("Requesting daily revenue stats for:", format(today, "yyyy-MM-dd"));
       const res = await fetch(`/api/revenue-stats/daily?date=${format(today, "yyyy-MM-dd")}`);
-      if (!res.ok) throw new Error("Network response was not ok");
-      return res.json() as Promise<DailyStats>;
+      if (!res.ok) {
+        console.error("Daily revenue API error:", res.status, res.statusText);
+        throw new Error("Network response was not ok");
+      }
+      const data = await res.json();
+      console.log("Daily revenue data received:", data);
+      return data as DailyStats;
     }
   });
+  
+  // Log di errori
+  useEffect(() => {
+    if (dailyError) {
+      console.error("Error fetching daily revenue stats:", dailyErrorDetails);
+    }
+  }, [dailyError, dailyErrorDetails]);
   
   // Dati settimanali (questa settimana)
   const { data: weeklyData } = useQuery({
