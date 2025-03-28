@@ -6,8 +6,8 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Printer } from "lucide-react";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+// @ts-ignore
+import html2pdf from "html2pdf.js";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -22,7 +22,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
   
-  // Handle PDF generation and download
+  // Handle PDF generation and download with vector graphics using html2pdf library
   const handlePrintAsPDF = async () => {
     if (!printRef.current) return;
     
@@ -34,65 +34,59 @@ export default function FormPreview({ formData }: FormPreviewProps) {
         buttonElement.setAttribute("disabled", "true");
       }
       
-      const canvas = await html2canvas(printRef.current, {
-        scale: 1.2, // Scala ridotta per assicurarsi che tutto entri in un foglio
-        useCORS: true,
-        logging: false,
-        allowTaint: true,
-        width: printRef.current.offsetWidth,
-        height: printRef.current.offsetHeight
-      });
+      // Configura le opzioni per html2pdf
+      const options = {
+        margin: [10, 10, 10, 10], // top, right, bottom, left in mm
+        filename: `MayleaLogistics-${documentId}.pdf`,
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { 
+          scale: 2, // Scala per una migliore qualità
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          allowTaint: true,
+          width: printRef.current.offsetWidth,
+          height: printRef.current.offsetHeight
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait',
+          compress: true
+        },
+        pagebreak: { mode: 'avoid-all' }
+      };
       
-      const imgData = canvas.toDataURL('image/png');
+      // Genera e scarica il PDF
+      html2pdf()
+        .from(printRef.current)
+        .set(options)
+        .save()
+        .then(() => {
+          // Ripristina lo stato del pulsante
+          if (buttonElement) {
+            buttonElement.textContent = "Stampa";
+            buttonElement.removeAttribute("disabled");
+          }
+        })
+        .catch((error: any) => {
+          console.error("Errore durante la creazione del PDF:", error);
+          alert("Impossibile generare il PDF. Riprova più tardi.");
+          if (buttonElement) {
+            buttonElement.textContent = "Stampa";
+            buttonElement.removeAttribute("disabled");
+          }
+        });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Impossibile generare il PDF. Riprova più tardi.");
       
-      // Crea PDF in formato A4
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // A4 dimensions: 210 x 297 mm
-      const imgWidth = 210 - 20; // Account for margins
-      const pageHeight = 297;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      // Assicuriamoci che tutto il contenuto entri in una singola pagina
-      let heightLeft = imgHeight;
-      let position = 10; // Top margin
-      
-      // Aggiungi l'immagine alla prima pagina
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      // Se il contenuto è più alto di una pagina, lo comprimiamo ulteriormente
-      if (heightLeft > 0) {
-        // Calcola un fattore di scala adeguato per farlo entrare in una pagina
-        const compressionRatio = 0.75; // Comprimiamo del 25% per assicurarci che entri tutto
-        const newImgWidth = imgWidth * compressionRatio;
-        const newImgHeight = imgHeight * compressionRatio;
-        
-        // Ricostruisci il PDF con la scala corretta
-        pdf.deletePage(1);
-        pdf.addPage();
-        
-        // Aumenta i margini per centrare e posiziona più in alto
-        const horizontalPadding = (210 - newImgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', horizontalPadding, 5, newImgWidth, newImgHeight);
-      }
-      
-      // Salva il PDF
-      pdf.save(`MayleaLogistics-${documentId}.pdf`);
-      
-      // Ripristina lo stato del pulsante
+      // Ripristina lo stato del pulsante anche in caso di errore
+      const buttonElement = document.getElementById("print-button");
       if (buttonElement) {
         buttonElement.textContent = "Stampa";
         buttonElement.removeAttribute("disabled");
       }
-      
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Impossibile generare il PDF. Riprova più tardi.");
     }
   };
 
@@ -114,7 +108,7 @@ export default function FormPreview({ formData }: FormPreviewProps) {
 
         <div 
           ref={printRef}
-          className="border border-gray-300 rounded-lg p-4 print-section text-[10.5pt] mt-2"
+          className="border border-gray-300 rounded-lg p-4 print-section text-[10.5pt] mt-2 w-full max-w-[800px] mx-auto"
         >
           {/* Company Copy */}
           <div className="border-b border-gray-400 pb-3 mb-3">
