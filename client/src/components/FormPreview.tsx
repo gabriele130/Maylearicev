@@ -6,8 +6,6 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Printer } from "lucide-react";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
-// @ts-ignore
-import html2pdf from "html2pdf.js";
 
 interface FormPreviewProps {
   formData: TransportFormData;
@@ -22,97 +20,23 @@ export default function FormPreview({ formData }: FormPreviewProps) {
   // Get current date formatted for the document
   const currentDate = format(new Date(), "dd/MM/yyyy", { locale: it });
   
-  // Handle PDF generation and download with vector graphics using html2pdf library
-  const handlePrintAsPDF = async () => {
-    if (!printRef.current) return;
-    
-    try {
-      // Mostra un indicatore di caricamento o feedback all'utente
-      const buttonElement = document.getElementById("print-button");
-      if (buttonElement) {
-        buttonElement.textContent = "Generazione PDF...";
-        buttonElement.setAttribute("disabled", "true");
-      }
-      
-      // Configura le opzioni per html2pdf
-      const options = {
-        margin: 0, // margini ridotti al minimo
-        filename: `MayleaLogistics-${documentId}.pdf`,
-        image: { type: 'jpeg', quality: 1.0 },
-        html2canvas: { 
-          scale: 0.85, // Scala ridotta ulteriormente
-          useCORS: true,
-          logging: true, // attiva i log per debug
-          letterRendering: true,
-          allowTaint: true,
-          width: printRef.current.offsetWidth,
-          height: printRef.current.offsetHeight
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'portrait',
-          compress: true,
-          hotfixes: ["px_scaling"]
-        },
-        pagebreak: { mode: 'avoid-all' }
-      };
-      
-      // Genera e scarica il PDF
-      html2pdf()
-        .from(printRef.current)
-        .set(options)
-        .toPdf() // Crea il PDF
-        .get('pdf')
-        .then((pdf: any) => {
-          // Rimuovi le pagine vuote (se presenti)
-          while (pdf.internal.getNumberOfPages() > 1) {
-            pdf.deletePage(pdf.internal.getNumberOfPages());
-          }
-          return pdf;
-        })
-        .save()
-        .then(() => {
-          // Ripristina lo stato del pulsante
-          if (buttonElement) {
-            buttonElement.textContent = "Stampa";
-            buttonElement.removeAttribute("disabled");
-          }
-        })
-        .catch((error: any) => {
-          console.error("Errore durante la creazione del PDF:", error);
-          alert("Impossibile generare il PDF. Riprova più tardi.");
-          if (buttonElement) {
-            buttonElement.textContent = "Stampa";
-            buttonElement.removeAttribute("disabled");
-          }
-        });
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Impossibile generare il PDF. Riprova più tardi.");
-      
-      // Ripristina lo stato del pulsante anche in caso di errore
-      const buttonElement = document.getElementById("print-button");
-      if (buttonElement) {
-        buttonElement.textContent = "Stampa";
-        buttonElement.removeAttribute("disabled");
-      }
-    }
+  // Funzione per utilizzare il comando nativo di stampa del browser
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <Card className="bg-white rounded-lg shadow-md">
       <CardContent className="pt-6">
-        <div className="flex justify-between items-center mb-4 print:hidden print-hide">
-          <h2 className="text-xl font-semibold text-primary">Anteprima Modulo</h2>
+        <div className="flex justify-center items-center mb-4 print:hidden print-hide">
           <Button
             id="print-button"
-            onClick={handlePrintAsPDF}
-            className="bg-primary text-white hover:bg-primary/90"
-            title="Scarica come PDF"
+            onClick={handlePrint}
+            className="bg-primary text-white hover:bg-primary/90 px-10 py-6 text-lg"
+            title="Stampa il documento"
           >
-            <Printer className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Stampa</span>
+            <Printer className="h-6 w-6 mr-2" />
+            <span>Stampa</span>
           </Button>
         </div>
 
