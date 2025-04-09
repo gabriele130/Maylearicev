@@ -96,7 +96,7 @@ export const insertRecipientProfileSchema = createInsertSchema(recipientProfiles
 export const profileSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Nome/Ragione Sociale è richiesto"),
-  profileName: z.string().min(1, "Nome del profilo è richiesto"),
+  profileName: z.string().optional().default(""),
   address: z.string().min(1, "Indirizzo è richiesto"),
   city: z.string().min(1, "Città è richiesta"),
   postcode: z.string().min(1, "CAP è richiesto"),
@@ -111,6 +111,11 @@ export const profileSchema = z.object({
     z.date(),
     z.string().transform(val => new Date(val))
   ]).optional(),
+});
+
+// Schema separato per il salvataggio dei profili, dove profileName è richiesto
+export const profileSaveSchema = profileSchema.extend({
+  profileName: z.string().min(1, "Nome del profilo è richiesto"),
 });
 
 export const senderProfileSchema = profileSchema;
