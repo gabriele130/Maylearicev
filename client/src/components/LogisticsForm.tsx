@@ -10,6 +10,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Command, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem, 
+  CommandList 
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { 
   TransportFormData, 
   transportFormSchema, 
@@ -40,14 +50,30 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
         const senderResponse = await fetch("/api/sender-profiles");
         if (senderResponse.ok) {
           const profiles = await senderResponse.json();
-          setSenderProfiles(profiles);
+          
+          // Ordina i mittenti in ordine alfabetico per nome del profilo o nome
+          const sortedSenderProfiles = [...profiles].sort((a, b) => {
+            const nameA = (a.profileName || a.name).toUpperCase();
+            const nameB = (b.profileName || b.name).toUpperCase();
+            return nameA.localeCompare(nameB);
+          });
+          
+          setSenderProfiles(sortedSenderProfiles);
         }
         
         // Fetch recipient profiles
         const recipientResponse = await fetch("/api/recipient-profiles");
         if (recipientResponse.ok) {
           const profiles = await recipientResponse.json();
-          setRecipientProfiles(profiles);
+          
+          // Ordina i destinatari in ordine alfabetico per nome del profilo o nome
+          const sortedRecipientProfiles = [...profiles].sort((a, b) => {
+            const nameA = (a.profileName || a.name).toUpperCase();
+            const nameB = (b.profileName || b.name).toUpperCase();
+            return nameA.localeCompare(nameB);
+          });
+          
+          setRecipientProfiles(sortedRecipientProfiles);
         }
       } catch (error) {
         console.error("Error loading profiles:", error);
@@ -259,22 +285,61 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
             <div className="space-y-4">
               <h3 className="text-md font-medium border-b border-gray-200 pb-2">Profili Mittente</h3>
               <div className="flex flex-col md:flex-row gap-4">
-                <Select 
-                  onValueChange={handleProfileSelect} 
-                  value={selectedProfileId || ""}
-                >
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="Seleziona profilo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">Nuovo Profilo</SelectItem>
-                    {senderProfiles.map((profile: SenderProfile) => (
-                      <SelectItem key={profile.id} value={profile.id.toString()}>
-                        {profile.profileName || profile.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      role="combobox" 
+                      className="w-full md:w-[350px] justify-between overflow-hidden"
+                    >
+                      {selectedProfileId && selectedProfileId !== "new"
+                        ? senderProfiles.find((profile) => profile.id.toString() === selectedProfileId)
+                          ? (senderProfiles.find((profile) => profile.id.toString() === selectedProfileId)?.profileName || 
+                             senderProfiles.find((profile) => profile.id.toString() === selectedProfileId)?.name)
+                          : "Seleziona profilo mittente"
+                        : selectedProfileId === "new"
+                          ? "Nuovo Profilo"
+                          : "Seleziona profilo mittente"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full md:w-[350px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Cerca profilo mittente..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>Nessun profilo trovato.</CommandEmpty>
+                        <CommandGroup className="max-h-[300px] overflow-auto">
+                          <CommandItem
+                            key="new-profile"
+                            value="new"
+                            onSelect={() => {
+                              handleProfileSelect("new");
+                            }}
+                          >
+                            <span>Nuovo Profilo</span>
+                            {selectedProfileId === "new" && (
+                              <Check className="ml-auto h-4 w-4" />
+                            )}
+                          </CommandItem>
+                          {senderProfiles.map((profile) => (
+                            <CommandItem
+                              key={profile.id}
+                              value={(profile.profileName || profile.name).toLowerCase()}
+                              onSelect={() => {
+                                handleProfileSelect(profile.id.toString());
+                              }}
+                            >
+                              <span>{profile.profileName || profile.name}</span>
+                              {selectedProfileId === profile.id.toString() && (
+                                <Check className="ml-auto h-4 w-4" />
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -430,22 +495,61 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
             <div className="space-y-4">
               <h3 className="text-md font-medium border-b border-gray-200 pb-2">Profili Destinatario</h3>
               <div className="flex flex-col md:flex-row gap-4">
-                <Select 
-                  onValueChange={handleRecipientProfileSelect} 
-                  value={selectedRecipientProfileId || ""}
-                >
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="Seleziona profilo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">Nuovo Profilo</SelectItem>
-                    {recipientProfiles.map((profile: RecipientProfile) => (
-                      <SelectItem key={profile.id} value={profile.id.toString()}>
-                        {profile.profileName || profile.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      role="combobox" 
+                      className="w-full md:w-[350px] justify-between overflow-hidden"
+                    >
+                      {selectedRecipientProfileId && selectedRecipientProfileId !== "new"
+                        ? recipientProfiles.find((profile) => profile.id.toString() === selectedRecipientProfileId)
+                          ? (recipientProfiles.find((profile) => profile.id.toString() === selectedRecipientProfileId)?.profileName || 
+                             recipientProfiles.find((profile) => profile.id.toString() === selectedRecipientProfileId)?.name)
+                          : "Seleziona profilo destinatario"
+                        : selectedRecipientProfileId === "new"
+                          ? "Nuovo Profilo"
+                          : "Seleziona profilo destinatario"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full md:w-[350px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Cerca profilo destinatario..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>Nessun profilo trovato.</CommandEmpty>
+                        <CommandGroup className="max-h-[300px] overflow-auto">
+                          <CommandItem
+                            key="new-profile"
+                            value="new"
+                            onSelect={() => {
+                              handleRecipientProfileSelect("new");
+                            }}
+                          >
+                            <span>Nuovo Profilo</span>
+                            {selectedRecipientProfileId === "new" && (
+                              <Check className="ml-auto h-4 w-4" />
+                            )}
+                          </CommandItem>
+                          {recipientProfiles.map((profile) => (
+                            <CommandItem
+                              key={profile.id}
+                              value={(profile.profileName || profile.name).toLowerCase()}
+                              onSelect={() => {
+                                handleRecipientProfileSelect(profile.id.toString());
+                              }}
+                            >
+                              <span>{profile.profileName || profile.name}</span>
+                              {selectedRecipientProfileId === profile.id.toString() && (
+                                <Check className="ml-auto h-4 w-4" />
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 
                 <div className="flex items-center gap-2">
                   <Checkbox
