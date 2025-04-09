@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { recipientProfileSchema } from "@shared/schema";
-import { Trash2, PencilLine, Plus, FileText, BarChart3, TrendingUp, Euro } from "lucide-react";
+import { Trash2, PencilLine, Plus, FileText, BarChart3, TrendingUp, Euro, Search } from "lucide-react";
 
 export default function Recipients() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<RecipientProfile | null>(null);
   const [profileToDelete, setProfileToDelete] = useState<RecipientProfile | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -232,6 +233,32 @@ export default function Recipients() {
     }
   };
 
+  // Filtraggio dei profili in base alla ricerca
+  const filteredProfiles = useMemo(() => {
+    if (!recipientProfiles || !searchTerm.trim()) return recipientProfiles;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return recipientProfiles.filter(profile => {
+      // Cerchiamo sia nel nome che nelle altre informazioni di contatto
+      const fullName = profile.name.toLowerCase();
+      // Dividiamo il nome in parole per permettere la ricerca di Nome Cognome o Cognome Nome
+      const nameParts = fullName.split(/\s+/);
+      
+      // Controlliamo se il termine di ricerca è contenuto nel nome completo
+      const nameMatches = fullName.includes(searchLower);
+      
+      // Controlliamo se il termine di ricerca corrisponde all'inizio di una delle parole del nome
+      // Questo permette di cercare per cognome o per nome indipendentemente dall'ordine
+      const partialNameMatches = nameParts.some(part => part.startsWith(searchLower));
+      
+      // Controlliamo anche altri campi
+      const addressMatches = profile.address.toLowerCase().includes(searchLower);
+      const cityMatches = profile.city.toLowerCase().includes(searchLower);
+      
+      return nameMatches || partialNameMatches || addressMatches || cityMatches;
+    });
+  }, [recipientProfiles, searchTerm]);
+
   return (
     <div className="container py-6">
       <div className="flex justify-between items-center mb-6">
@@ -239,6 +266,29 @@ export default function Recipients() {
         <Button onClick={handleAddNew} className="flex items-center gap-1">
           <Plus className="h-4 w-4" /> Nuovo Destinatario
         </Button>
+      </div>
+      
+      {/* Barra di ricerca */}
+      <div className="relative mb-6">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <Search className="h-4 w-4 text-gray-400" />
+        </div>
+        <Input
+          type="text"
+          placeholder="Cerca per nome, cognome, indirizzo o città..."
+          className="pl-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <Button 
+            variant="ghost" 
+            className="absolute inset-y-0 right-0 px-3"
+            onClick={() => setSearchTerm("")}
+          >
+            ✕
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -260,16 +310,27 @@ export default function Recipients() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recipientProfiles?.map((profile) => (
-            <RecipientProfileCard 
-              key={profile.id} 
-              profile={profile} 
-              onEdit={handleEdit} 
-              onDelete={handleConfirmDelete} 
-            />
-          ))}
-        </div>
+        <>
+          {filteredProfiles?.length === 0 && searchTerm ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-gray-500 mb-4">Nessun risultato trovato per "{searchTerm}"</p>
+                <Button variant="outline" onClick={() => setSearchTerm("")}>Cancella ricerca</Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProfiles?.map((profile) => (
+                <RecipientProfileCard 
+                  key={profile.id} 
+                  profile={profile} 
+                  onEdit={handleEdit} 
+                  onDelete={handleConfirmDelete} 
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Add/Edit Recipient Dialog */}
