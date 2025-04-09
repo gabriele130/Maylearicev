@@ -296,11 +296,13 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Se l'utente vuole salvare il profilo mittente, lo facciamo
-      if (formData.saveSender && formData.profileName) {
+      if (formData.saveSender) {
         // Crea un oggetto profilo dal mittente
+        const profileName = formData.profileName || `${formData.sender.name} (${formData.sender.address})`;
+        
         const senderProfile = {
           name: formData.sender.name,
-          profileName: formData.profileName, // Usa il nome profilo specificato
+          profileName: profileName, // Usa il nome profilo specificato o generato
           address: formData.sender.address,
           city: formData.sender.city,
           postcode: formData.sender.postcode,
@@ -315,11 +317,13 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Se l'utente vuole salvare il profilo destinatario, lo facciamo
-      if (formData.saveRecipient && formData.recipientProfileName) {
+      if (formData.saveRecipient) {
         // Crea un oggetto profilo dal destinatario
+        const profileName = formData.recipientProfileName || `${formData.recipient.name} (${formData.recipient.address})`;
+        
         const recipientProfile = {
           name: formData.recipient.name,
-          profileName: formData.recipientProfileName, // Usa il nome profilo specificato
+          profileName: profileName, // Usa il nome profilo specificato o generato
           address: formData.recipient.address,
           city: formData.recipient.city,
           postcode: formData.recipient.postcode,
