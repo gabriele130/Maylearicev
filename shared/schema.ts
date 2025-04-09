@@ -140,8 +140,8 @@ export const transportFormSchema = z.object({
   }),
   saveSender: z.boolean().optional().default(false),
   saveRecipient: z.boolean().optional().default(false),
-  profileName: z.string().optional().nullable(),
-  recipientProfileName: z.string().optional().nullable(),
+  profileName: z.string().optional().nullable().default(null),
+  recipientProfileName: z.string().optional().nullable().default(null),
 });
 
 export const insertTransportDocumentSchema = createInsertSchema(transportDocuments).omit({
