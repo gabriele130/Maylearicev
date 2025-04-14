@@ -87,10 +87,7 @@ export default function Recipients() {
       
       console.log("Sending profile data:", profileData);
       
-      return apiRequest('/api/recipient-profiles', {
-        method: 'POST',
-        body: JSON.stringify(profileData),
-      });
+      return apiRequest('POST', '/api/recipient-profiles', profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/recipient-profiles'] });
@@ -113,9 +110,7 @@ export default function Recipients() {
   // Delete recipient profile
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/recipient-profiles/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest('DELETE', `/api/recipient-profiles/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/recipient-profiles'] });
@@ -150,10 +145,7 @@ export default function Recipients() {
         email: data.profileData.email && data.profileData.email.trim() !== '' ? data.profileData.email : null
       };
       
-      return apiRequest(`/api/recipient-profiles/${data.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      });
+      return apiRequest('PUT', `/api/recipient-profiles/${data.id}`, profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/recipient-profiles'] });

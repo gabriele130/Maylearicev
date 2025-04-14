@@ -87,10 +87,7 @@ export default function Senders() {
       
       console.log("Sending profile data:", profileData);
       
-      return apiRequest('/api/sender-profiles', {
-        method: 'POST',
-        body: JSON.stringify(profileData),
-      });
+      return apiRequest('POST', '/api/sender-profiles', profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
@@ -113,9 +110,7 @@ export default function Senders() {
   // Delete sender profile
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/sender-profiles/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest('DELETE', `/api/sender-profiles/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
@@ -150,10 +145,7 @@ export default function Senders() {
         email: data.profileData.email && data.profileData.email.trim() !== '' ? data.profileData.email : null
       };
       
-      return apiRequest(`/api/sender-profiles/${data.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      });
+      return apiRequest('PUT', `/api/sender-profiles/${data.id}`, profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/sender-profiles'] });
