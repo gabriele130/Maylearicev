@@ -19,6 +19,7 @@ import {
   CommandItem, 
   CommandList 
 } from "@/components/ui/command";
+import { AddressAutocomplete } from "./AddressAutocomplete";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { 
   TransportFormData, 

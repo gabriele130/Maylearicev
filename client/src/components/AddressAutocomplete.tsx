@@ -8,7 +8,23 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useDebounce } from "@/hooks/use-debounce";
+
+// Inline useDebounce hook poiché è molto semplice
+function useDebounce<T>(value: T, delay = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 interface AddressAutocompleteProps {
   label: string;
@@ -57,7 +73,8 @@ export function AddressAutocomplete({
       try {
         const response = await apiRequest(
           "GET", 
-          `/api/address-suggestions?q=${encodeURIComponent(debouncedValue)}`
+          `/api/address-suggestions?q=${encodeURIComponent(debouncedValue)}`,
+          {}
         );
         const data = await response.json();
         setSuggestions(data.suggestions || []);
@@ -83,7 +100,7 @@ export function AddressAutocomplete({
     try {
       const response = await apiRequest("POST", "/api/validate-address", {
         address: addressToValidate
-      });
+      }, {});
       
       const data = await response.json();
       setIsValid(data.isValid);

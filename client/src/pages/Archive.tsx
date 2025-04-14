@@ -38,9 +38,7 @@ export default function Archive() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest(`/api/transport-documents/${id}`, {
-        method: 'DELETE'
-      });
+      await apiRequest('DELETE', `/api/transport-documents/${id}`);
       return id;
     },
     onSuccess: () => {
