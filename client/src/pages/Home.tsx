@@ -52,10 +52,7 @@ export default function Home() {
   // Mutation for saving transport document
   const saveDocumentMutation = useMutation({
     mutationFn: async (data: TransportFormData) => {
-      return apiRequest("/api/transport-documents", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return apiRequest("POST", "/api/transport-documents", data);
     },
     onSuccess: () => {
       toast({
