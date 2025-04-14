@@ -73,8 +73,7 @@ export function AddressAutocomplete({
       try {
         const response = await apiRequest(
           "GET", 
-          `/api/address-suggestions?q=${encodeURIComponent(debouncedValue)}`,
-          {}
+          `/api/address-suggestions?q=${encodeURIComponent(debouncedValue)}`
         );
         const data = await response.json();
         setSuggestions(data.suggestions || []);

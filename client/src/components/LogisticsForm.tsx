@@ -425,11 +425,25 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                   name="sender.address"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Indirizzo *</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ''} />
+                        <AddressAutocomplete
+                          label="Indirizzo"
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                          requiredField={true}
+                          error={form.formState.errors.sender?.address?.message as string}
+                          onValidatedData={(data) => {
+                            if (data.isValid) {
+                              if (data.city) {
+                                form.setValue('sender.city', data.city);
+                              }
+                              if (data.postcode) {
+                                form.setValue('sender.postcode', data.postcode);
+                              }
+                            }
+                          }}
+                        />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -635,11 +649,25 @@ export default function LogisticsForm({ onFormDataChange }: LogisticsFormProps) 
                   name="recipient.address"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Indirizzo *</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ''} />
+                        <AddressAutocomplete
+                          label="Indirizzo"
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                          requiredField={true}
+                          error={form.formState.errors.recipient?.address?.message as string}
+                          onValidatedData={(data) => {
+                            if (data.isValid) {
+                              if (data.city) {
+                                form.setValue('recipient.city', data.city);
+                              }
+                              if (data.postcode) {
+                                form.setValue('recipient.postcode', data.postcode);
+                              }
+                            }
+                          }}
+                        />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
