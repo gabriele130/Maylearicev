@@ -5,6 +5,7 @@ import { senderProfileSchema, recipientProfileSchema, transportFormSchema, inser
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { addDays, startOfDay, endOfDay, subDays, subMonths, format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { validateAddress, suggestAddresses } from "./googleMapsService";
 
 // Schedule automatic deletion of expired documents
 function scheduleDocumentCleanup() {
