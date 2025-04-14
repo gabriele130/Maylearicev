@@ -976,6 +976,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ----- ADDRESS VALIDATION API -----
+  // Validate address
+  app.post("/api/validate-address", async (req, res) => {
+    try {
+      const { address, city, postcode, country } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ message: "Indirizzo richiesto" });
+      }
+      
+      const result = await validateAddress(address, city, postcode, country);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error validating address:", error);
+      res.status(500).json({ 
+        message: "Errore durante la validazione dell'indirizzo",
+        error: error.message
+      });
+    }
+  });
+  
+  // Get address suggestions
+  app.get("/api/address-suggestions", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query || query.length < 3) {
+        return res.json({ suggestions: [] });
+      }
+      
+      const suggestions = await suggestAddresses(query);
+      res.json({ suggestions });
+    } catch (error: any) {
+      console.error("Error getting address suggestions:", error);
+      res.status(500).json({ 
+        message: "Errore durante il recupero dei suggerimenti",
+        error: error.message
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
