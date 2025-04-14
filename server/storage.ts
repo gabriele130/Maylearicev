@@ -237,8 +237,8 @@ export class DatabaseStorage implements IStorage {
       // Generate document number (4-digit)
       const documentNumber = `MLD-${Math.floor(1000 + Math.random() * 9000)}`;
       
-      // Calculate expiry date (4 months from now)
-      const expiresAt = add(new Date(), { months: 4 });
+      // Calculate expiry date (30 days from now)
+      const expiresAt = add(new Date(), { days: 30 });
       
       // Create a new document
       const newDocument = {

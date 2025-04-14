@@ -177,7 +177,7 @@ export default function Archive() {
         <>
           <div className="flex items-center mb-4 gap-2 text-gray-500">
             <Calendar className="h-4 w-4" />
-            <p>I documenti vengono conservati per 4 mesi dalla data di creazione.</p>
+            <p>I documenti vengono conservati per 30 giorni dalla data di creazione.</p>
           </div>
           
           {Object.entries(groupedDocuments).map(([monthYear, monthDocuments]) => (
