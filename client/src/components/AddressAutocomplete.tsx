@@ -99,7 +99,7 @@ export function AddressAutocomplete({
     try {
       const response = await apiRequest("POST", "/api/validate-address", {
         address: addressToValidate
-      }, {});
+      });
       
       const data = await response.json();
       setIsValid(data.isValid);
