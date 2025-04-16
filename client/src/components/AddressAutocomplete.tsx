@@ -76,11 +76,21 @@ export function AddressAutocomplete({
           `/api/address-suggestions?q=${encodeURIComponent(debouncedValue)}`
         );
         const data = await response.json();
+        
+        // Verifica se c'è un errore di API o permessi
+        if (data.error && (data.error.includes("403") || data.error.includes("REQUEST_DENIED") || data.error.includes("referer restrictions"))) {
+          console.warn("API Google Maps non disponibile - suggerimenti disabilitati");
+          setSuggestions([]);
+          setIsOpen(false);
+          return;
+        }
+        
         setSuggestions(data.suggestions || []);
         setIsOpen(data.suggestions && data.suggestions.length > 0);
       } catch (error) {
         console.error("Errore nel caricamento dei suggerimenti:", error);
         setSuggestions([]);
+        setIsOpen(false);
       } finally {
         setIsLoading(false);
       }
@@ -102,6 +112,32 @@ export function AddressAutocomplete({
       });
       
       const data = await response.json();
+      
+      // Controlla se c'è un errore di permesso o API (403)
+      if (data.error && (data.error.includes("403") || data.error.includes("REQUEST_DENIED") || data.error.includes("referer restrictions"))) {
+        console.warn("API Google Maps non disponibile - validazione bypassata");
+        
+        // Consideriamo l'indirizzo valido quando le API non sono disponibili
+        setIsValid(true);
+        
+        if (onValidatedData) {
+          onValidatedData({
+            isValid: true,
+            formattedAddress: addressToValidate,
+            // Lasciamo vuoti city, postcode e country, l'utente dovrà inserirli manualmente
+          });
+        }
+        
+        toast({
+          title: "Indirizzo accettato",
+          description: "Verifica manuale richiesta. Servizio di validazione indirizzi temporaneamente non disponibile.",
+          variant: "default",
+        });
+        
+        return;
+      }
+      
+      // Gestione normale quando l'API funziona
       setIsValid(data.isValid);
       
       if (data.isValid && onValidatedData) {
@@ -136,15 +172,22 @@ export function AddressAutocomplete({
       }
     } catch (error) {
       console.error("Errore nella validazione dell'indirizzo:", error);
-      toast({
-        title: "Errore di validazione",
-        description: "Si è verificato un errore durante la validazione dell'indirizzo.",
-        variant: "destructive",
-      });
+      
+      // In caso di errori di rete o server, consideriamo l'indirizzo valido per non bloccare l'utente
+      setIsValid(true);
       
       if (onValidatedData) {
-        onValidatedData({ isValid: false });
+        onValidatedData({ 
+          isValid: true,
+          formattedAddress: addressToValidate 
+        });
       }
+      
+      toast({
+        title: "Validazione non disponibile",
+        description: "Si è verificato un errore durante la validazione. L'indirizzo è stato accettato ma potrebbe richiedere una verifica manuale.",
+        variant: "default", // Usiamo default per un messaggio meno severo rispetto a destructive
+      });
     } finally {
       setIsLoading(false);
     }
