@@ -177,7 +177,6 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <h3 className="font-semibold text-primary text-[12px]">MAYLEA – Logistics & Transport</h3>
                   <p className="text-[9px] text-gray-700">C.T.D. SRL</p>
                   <p className="text-[9px] text-gray-700">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
-                  <p className="text-[9px] text-gray-700">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
                   <p className="text-[9px] text-gray-700">whatsapp: 331 3896381 - www.maylealogistics.it</p>
                 </div>
               </div>
@@ -323,7 +322,6 @@ export default function FormPreview({ formData }: FormPreviewProps) {
                   <h3 className="font-semibold text-primary text-[12px]">MAYLEA – Logistics & Transport</h3>
                   <p className="text-[9px] text-gray-700">C.T.D. SRL</p>
                   <p className="text-[9px] text-gray-700">Via Gonzaga 105 – Rosolini, Tel: 09311666849</p>
-                  <p className="text-[9px] text-gray-700">Via Risorgimento 4/C – Modica, Tel: 09321882200</p>
                   <p className="text-[9px] text-gray-700">whatsapp: 331 3896381 - www.maylealogistics.it</p>
                 </div>
               </div>
