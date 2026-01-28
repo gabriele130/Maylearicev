@@ -19,7 +19,10 @@ import {
   Lock,
   Star,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Plane,
+  Ship,
+  Container
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -63,30 +66,62 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 md:pt-32 md:pb-40">
+      <section className="relative pt-16 pb-24 md:pt-24 md:pb-32">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/10 mb-8 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              <span className="text-sm text-white/70">Spedizioni Premium in Italia e Europa</span>
+          <div className="max-w-5xl mx-auto text-center">
+            {/* Transport modes badges */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-sm">
+                <Plane className="w-4 h-4 text-blue-400" />
+                <span className="text-sm text-blue-300 font-medium">Via Aerea</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
+                <Truck className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm text-emerald-300 font-medium">Su Gomma</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-sm">
+                <Ship className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-purple-300 font-medium">Via Mare</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-sm">
+                <Container className="w-4 h-4 text-amber-400" />
+                <span className="text-sm text-amber-300 font-medium">Container</span>
+              </div>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-[1.1] tracking-tight">
-              <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">Trasporti di </span>
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Eccellenza</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
+              <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">Spedizioni </span>
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Nazionali</span>
               <br />
-              <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">per la Tua Azienda</span>
+              <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">e </span>
+              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">Internazionali</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-              Da oltre 10 anni siamo il partner di fiducia per imprese che richiedono 
-              affidabilità assoluta, puntualità garantita e un servizio personalizzato.
+            <p className="text-lg md:text-xl text-white/50 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+              Trasportiamo le tue merci in <span className="text-white/70 font-medium">tutta Italia e nel mondo</span> via aerea, su gomma 
+              e via mare. Container, groupage e carichi completi con puntualità garantita.
             </p>
+
+            {/* Quick info pills */}
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <Globe className="w-4 h-4 text-blue-400" />
+                <span>Italia + Europa + Mondo</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <Timer className="w-4 h-4 text-emerald-400" />
+                <span>Express 24/48h</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <Shield className="w-4 h-4 text-purple-400" />
+                <span>Assicurazione Inclusa</span>
+              </div>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#contatti">
                 <Button size="lg" className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 text-white border-0 shadow-xl shadow-blue-500/25 px-8 h-14 text-base gap-3 group transition-all duration-500">
-                  Richiedi Preventivo
+                  Richiedi Preventivo Gratuito
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
@@ -102,6 +137,30 @@ export default function LandingPage() {
 
         {/* Decorative line */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </section>
+
+      {/* Transport Methods Strip */}
+      <section className="relative py-12 bg-gradient-to-r from-blue-600/5 via-indigo-600/10 to-purple-600/5 border-y border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            {[
+              { icon: Plane, title: "Trasporto Aereo", desc: "Spedizioni urgenti worldwide", color: "from-blue-500 to-cyan-500" },
+              { icon: Truck, title: "Trasporto su Gomma", desc: "Italia ed Europa su strada", color: "from-emerald-500 to-green-500" },
+              { icon: Ship, title: "Trasporto Marittimo", desc: "Container e groupage via mare", color: "from-purple-500 to-indigo-500" },
+              { icon: Container, title: "Full Container", desc: "FCL e LCL per grandi volumi", color: "from-amber-500 to-orange-500" },
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-4 group">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                  <item.icon className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-sm md:text-base">{item.title}</h3>
+                  <p className="text-white/40 text-xs md:text-sm">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Stats Bar */}
