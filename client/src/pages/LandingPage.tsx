@@ -71,7 +71,7 @@ export default function LandingPage() {
                 </Button>
               </a>
               <a href="tel:09311666849">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 gap-2 w-full sm:w-auto">
+                <Button size="lg" className="bg-white/20 text-white border-2 border-white hover:bg-white hover:text-[hsl(210,78%,28%)] gap-2 w-full sm:w-auto">
                   <Phone className="w-5 h-5" />
                   Chiama Ora
                 </Button>
@@ -328,9 +328,6 @@ export default function LandingPage() {
                 <p className="text-gray-600 mb-4">
                   Ritiriamo i tuoi pacchi direttamente a casa o in azienda. Basta una chiamata per organizzare il ritiro.
                 </p>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  Gratuito sopra i 50kg
-                </Badge>
               </CardContent>
             </Card>
             <Card className="text-center hover:shadow-xl transition-shadow border-2 border-[hsl(210,78%,28%)]">
