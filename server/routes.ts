@@ -31,9 +31,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start document cleanup scheduler
   scheduleDocumentCleanup();
 
-  // ----- SENDER PROFILES API -----
+  // ----- AUTHENTICATION API -----
+  // Admin login endpoint with session
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Username e password sono richiesti" 
+        });
+      }
+      
+      // Check credentials against database
+      const user = await storage.getUserByUsername(username);
+      
+      if (user && user.password === password) {
+        // Set session
+        req.session.isAuthenticated = true;
+        req.session.username = user.username;
+        
+        return res.json({ 
+          success: true, 
+          message: "Login effettuato con successo",
+          user: { username: user.username }
+        });
+      }
+      
+      // Default admin credentials for first access
+      if (username === "admin" && password === "maylea2024") {
+        // Set session
+        req.session.isAuthenticated = true;
+        req.session.username = "admin";
+        
+        return res.json({ 
+          success: true, 
+          message: "Login effettuato con successo",
+          user: { username: "admin" }
+        });
+      }
+      
+      return res.status(401).json({ 
+        success: false, 
+        message: "Credenziali non valide" 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Errore durante il login" 
+      });
+    }
+  });
+  
+  // Verify authentication status
+  app.get("/api/auth/verify", async (req, res) => {
+    if (req.session.isAuthenticated) {
+      return res.json({ 
+        success: true, 
+        user: { username: req.session.username }
+      });
+    }
+    return res.status(401).json({ success: false, message: "Non autenticato" });
+  });
+  
+  // Logout endpoint
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: "Errore durante il logout" });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ success: true, message: "Logout effettuato" });
+    });
+  });
+  
+  // Authentication middleware for protected routes
+  const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session.isAuthenticated) {
+      next();
+    } else {
+      res.status(401).json({ success: false, message: "Autenticazione richiesta" });
+    }
+  };
+
+  // ----- SENDER PROFILES API (Protected) -----
   // Get all sender profiles
-  app.get("/api/sender-profiles", async (req, res) => {
+  app.get("/api/sender-profiles", requireAuth, async (req, res) => {
     try {
       const profiles = await storage.getAllSenderProfiles();
       res.json(profiles);
@@ -43,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get sender profile by ID
-  app.get("/api/sender-profiles/:id", async (req, res) => {
+  app.get("/api/sender-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -62,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get transaction history for a sender profile
-  app.get("/api/sender-profiles/:id/transactions", async (req, res) => {
+  app.get("/api/sender-profiles/:id/transactions", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -86,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get financial records for a sender profile
-  app.get("/api/sender-profiles/:id/financials", async (req, res) => {
+  app.get("/api/sender-profiles/:id/financials", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -136,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create a new sender profile
-  app.post("/api/sender-profiles", async (req, res) => {
+  app.post("/api/sender-profiles", requireAuth, async (req, res) => {
     try {
       console.log("Received profile data:", JSON.stringify(req.body));
       
@@ -178,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update a sender profile
-  app.put("/api/sender-profiles/:id", async (req, res) => {
+  app.put("/api/sender-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -226,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a sender profile
-  app.delete("/api/sender-profiles/:id", async (req, res) => {
+  app.delete("/api/sender-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -246,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ----- RECIPIENT PROFILES API -----
   // Get all recipient profiles
-  app.get("/api/recipient-profiles", async (req, res) => {
+  app.get("/api/recipient-profiles", requireAuth, async (req, res) => {
     try {
       const profiles = await storage.getAllRecipientProfiles();
       res.json(profiles);
@@ -256,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get recipient profile by ID
-  app.get("/api/recipient-profiles/:id", async (req, res) => {
+  app.get("/api/recipient-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -275,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get transaction history for a recipient profile
-  app.get("/api/recipient-profiles/:id/transactions", async (req, res) => {
+  app.get("/api/recipient-profiles/:id/transactions", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -299,7 +384,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get financial records for a recipient profile
-  app.get("/api/recipient-profiles/:id/financials", async (req, res) => {
+  app.get("/api/recipient-profiles/:id/financials", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -349,7 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create a new recipient profile
-  app.post("/api/recipient-profiles", async (req, res) => {
+  app.post("/api/recipient-profiles", requireAuth, async (req, res) => {
     try {
       console.log("Received recipient profile data:", JSON.stringify(req.body));
       
@@ -390,7 +475,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update a recipient profile
-  app.put("/api/recipient-profiles/:id", async (req, res) => {
+  app.put("/api/recipient-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -438,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a recipient profile
-  app.delete("/api/recipient-profiles/:id", async (req, res) => {
+  app.delete("/api/recipient-profiles/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -458,7 +543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ----- TRANSPORT DOCUMENTS API -----
   // Get all transport documents
-  app.get("/api/transport-documents", async (req, res) => {
+  app.get("/api/transport-documents", requireAuth, async (req, res) => {
     try {
       const documents = await storage.getAllTransportDocuments();
       res.json(documents);
@@ -469,7 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get transport document by ID
-  app.get("/api/transport-documents/:id", async (req, res) => {
+  app.get("/api/transport-documents/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -489,7 +574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create a new transport document
-  app.post("/api/transport-documents", async (req, res) => {
+  app.post("/api/transport-documents", requireAuth, async (req, res) => {
     try {
       console.log("Received document data:", JSON.stringify(req.body));
       
@@ -575,7 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a transport document
-  app.delete("/api/transport-documents/:id", async (req, res) => {
+  app.delete("/api/transport-documents/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -596,7 +681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ----- WEIGHT STATISTICS API -----
   // Get all weight statistics
-  app.get("/api/weight-stats", async (req, res) => {
+  app.get("/api/weight-stats", requireAuth, async (req, res) => {
     try {
       const stats = await storage.getWeightStats();
       res.json(stats);
@@ -607,7 +692,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get daily weight statistics
-  app.get("/api/weight-stats/daily", async (req, res) => {
+  app.get("/api/weight-stats/daily", requireAuth, async (req, res) => {
     try {
       // Parse date from query parameter or use today
       const dateParam = req.query.date as string;
@@ -625,7 +710,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get weekly weight statistics
-  app.get("/api/weight-stats/weekly", async (req, res) => {
+  app.get("/api/weight-stats/weekly", requireAuth, async (req, res) => {
     try {
       // Parse date from query parameter or use current week
       const dateParam = req.query.date as string;
@@ -643,7 +728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get monthly weight statistics
-  app.get("/api/weight-stats/monthly", async (req, res) => {
+  app.get("/api/weight-stats/monthly", requireAuth, async (req, res) => {
     try {
       // Parse date from query parameter or use current month
       const dateParam = req.query.date as string;
@@ -661,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get weight statistics for custom period
-  app.get("/api/weight-stats/period", async (req, res) => {
+  app.get("/api/weight-stats/period", requireAuth, async (req, res) => {
     try {
       // Parse start and end dates from query parameters
       const startDateParam = req.query.startDate as string;
@@ -687,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get weight trends for last X days
-  app.get("/api/weight-stats/trends", async (req, res) => {
+  app.get("/api/weight-stats/trends", requireAuth, async (req, res) => {
     try {
       // Parse days parameter or default to 30
       const daysParam = req.query.days as string;
@@ -706,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get destination statistics
-  app.get("/api/weight-stats/destinations", async (req, res) => {
+  app.get("/api/weight-stats/destinations", requireAuth, async (req, res) => {
     try {
       // Parse period or default to last 30 days
       const periodParam = req.query.period as string || '30days';
@@ -749,7 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ----- REVENUE STATISTICS API -----
   // Get all revenue stats
-  app.get("/api/revenue-stats", async (req, res) => {
+  app.get("/api/revenue-stats", requireAuth, async (req, res) => {
     try {
       const stats = await storage.getRevenueStats();
       res.json(stats);
@@ -760,7 +845,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get daily revenue stats
-  app.get("/api/revenue-stats/daily", async (req, res) => {
+  app.get("/api/revenue-stats/daily", requireAuth, async (req, res) => {
     try {
       // Usa la data di oggi come predefinita o la data specificata
       const dateParam = req.query.date as string;
@@ -789,7 +874,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get weekly revenue stats
-  app.get("/api/revenue-stats/weekly", async (req, res) => {
+  app.get("/api/revenue-stats/weekly", requireAuth, async (req, res) => {
     try {
       // Usa la data di oggi come predefinita o la data specificata
       const dateParam = req.query.date as string;
@@ -814,7 +899,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get monthly revenue stats
-  app.get("/api/revenue-stats/monthly", async (req, res) => {
+  app.get("/api/revenue-stats/monthly", requireAuth, async (req, res) => {
     try {
       // Usa la data di oggi come predefinita o la data specificata
       const dateParam = req.query.date as string;
@@ -839,7 +924,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get revenue stats for a specific period
-  app.get("/api/revenue-stats/period", async (req, res) => {
+  app.get("/api/revenue-stats/period", requireAuth, async (req, res) => {
     try {
       const startDateParam = req.query.startDate as string;
       const endDateParam = req.query.endDate as string;
@@ -868,7 +953,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get revenue trends
-  app.get("/api/revenue-stats/trends", async (req, res) => {
+  app.get("/api/revenue-stats/trends", requireAuth, async (req, res) => {
     try {
       // Numero di giorni da visualizzare (predefinito: 30 giorni)
       const daysParam = req.query.days as string;
@@ -891,7 +976,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get revenue by payment method
-  app.get("/api/revenue-stats/payment-methods", async (req, res) => {
+  app.get("/api/revenue-stats/payment-methods", requireAuth, async (req, res) => {
     try {
       // Parse period or default to last 30 days
       const periodParam = req.query.period as string || '30days';
@@ -934,7 +1019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get revenue by destination
-  app.get("/api/revenue-stats/destinations", async (req, res) => {
+  app.get("/api/revenue-stats/destinations", requireAuth, async (req, res) => {
     try {
       // Parse period or default to last 30 days
       const periodParam = req.query.period as string || '30days';
@@ -978,7 +1063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ----- ADDRESS VALIDATION API -----
   // Validate address
-  app.post("/api/validate-address", async (req, res) => {
+  app.post("/api/validate-address", requireAuth, async (req, res) => {
     try {
       const { address, city, postcode, country } = req.body;
       
@@ -998,7 +1083,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get address suggestions
-  app.get("/api/address-suggestions", async (req, res) => {
+  app.get("/api/address-suggestions", requireAuth, async (req, res) => {
     try {
       const query = req.query.q as string;
       
