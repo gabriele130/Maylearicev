@@ -1,60 +1,54 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, X, FileText, Archive, UserRound, Users, BarChart2, EuroIcon, LogOut, Home } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MenuIcon, X, FileText, Archive, UserRound, Users, BarChart2, LineChart, EuroIcon } from "lucide-react";
 import { useSidebar } from "@/hooks/use-sidebar";
-import { useAuth } from "@/hooks/use-auth";
 import logoPath from "../assets/Logo_def_MAYLEA_marrone_su_bianco__2_-removebg-preview.png";
 
 const sidebarLinks = [
   {
     title: "Modulo Spedizione",
-    href: "/dashboard",
+    href: "/",
     icon: <FileText className="mr-2 h-4 w-4" />,
   },
   {
     title: "Archivio",
-    href: "/dashboard/archive",
+    href: "/archive",
     icon: <Archive className="mr-2 h-4 w-4" />,
   },
   {
     title: "Mittenti",
-    href: "/dashboard/senders",
+    href: "/senders",
     icon: <UserRound className="mr-2 h-4 w-4" />,
   },
   {
     title: "Destinatari",
-    href: "/dashboard/recipients",
+    href: "/recipients",
     icon: <Users className="mr-2 h-4 w-4" />,
   },
   {
     title: "Statistiche Pesi",
-    href: "/dashboard/statistics",
+    href: "/statistics",
     icon: <BarChart2 className="mr-2 h-4 w-4" />,
   },
   {
     title: "Statistiche Entrate",
-    href: "/dashboard/income-statistics",
+    href: "/income-statistics",
     icon: <EuroIcon className="mr-2 h-4 w-4" />,
   },
 ];
 
 export default function Sidebar() {
   const { state, toggleSidebar, isMobile, openMobile, setOpenMobile } = useSidebar();
-  const [location, setLocation] = useLocation();
-  const { logout } = useAuth();
+  const [location] = useLocation();
 
   useEffect(() => {
     if (isMobile) {
       setOpenMobile(false);
     }
   }, [location, isMobile, setOpenMobile]);
-
-  const handleLogout = async () => {
-    await logout();
-    setLocation("/");
-  };
 
   return (
     <>
@@ -158,34 +152,11 @@ export default function Sidebar() {
           </ul>
         </div>
 
-        {/* Sidebar footer with logout */}
-        <div className="border-t p-4 space-y-3">
-          <Link href="/">
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start gap-2",
-                state === "collapsed" && !isMobile ? "justify-center px-0" : ""
-              )}
-            >
-              <Home className="h-4 w-4" />
-              {(state === "expanded" || isMobile) && <span>Torna al Sito</span>}
-            </Button>
-          </Link>
-          <Button
-            variant="ghost"
-            onClick={handleLogout}
-            className={cn(
-              "w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50",
-              state === "collapsed" && !isMobile ? "justify-center px-0" : ""
-            )}
-          >
-            <LogOut className="h-4 w-4" />
-            {(state === "expanded" || isMobile) && <span>Esci</span>}
-          </Button>
+        {/* Sidebar footer */}
+        <div className="border-t p-4">
           {(state === "expanded" || isMobile) && (
-            <div className="text-xs text-muted-foreground pt-2">
-              <p>© {new Date().getFullYear()} MAYLEA Logistics & Transport</p>
+            <div className="text-xs text-muted-foreground">
+              <p>© 2023 MAYLEA Logistics & Transport</p>
               <p>C.T.D. SRL</p>
             </div>
           )}
