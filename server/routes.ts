@@ -7,29 +7,56 @@ import { fromZodError } from "zod-validation-error";
 import { addDays, startOfDay, endOfDay, subDays, subMonths, format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { validateAddress, suggestAddresses } from "./googleMapsService";
 
-// Schedule automatic deletion of expired documents
+// Detect serverless environment (Vercel) where setInterval is not reliable
+const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+async function runDocumentCleanup(): Promise<number> {
+  try {
+    const deletedCount = await storage.deleteExpiredDocuments();
+    console.log(`Deleted ${deletedCount} expired transport documents`);
+    return deletedCount;
+  } catch (error) {
+    console.error("Error during document cleanup:", error);
+    throw error;
+  }
+}
+
+// Schedule automatic deletion of expired documents (only in long-running envs)
 function scheduleDocumentCleanup() {
+  if (IS_SERVERLESS) {
+    // In serverless environments cleanup is triggered via /api/cron/cleanup
+    return;
+  }
   const INTERVAL_HOURS = 24; // Run once per day
-  
-  const runCleanup = async () => {
-    try {
-      const deletedCount = await storage.deleteExpiredDocuments();
-      console.log(`Deleted ${deletedCount} expired transport documents`);
-    } catch (error) {
-      console.error("Error during document cleanup:", error);
-    }
-  };
-  
   // Run cleanup immediately on startup
-  runCleanup();
-  
+  runDocumentCleanup().catch(() => {});
   // Schedule periodic cleanup
-  setInterval(runCleanup, INTERVAL_HOURS * 60 * 60 * 1000);
+  setInterval(() => {
+    runDocumentCleanup().catch(() => {});
+  }, INTERVAL_HOURS * 60 * 60 * 1000);
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Start document cleanup scheduler
   scheduleDocumentCleanup();
+
+  // Cron endpoint for serverless environments (e.g. Vercel Cron)
+  app.get("/api/cron/cleanup", async (req, res) => {
+    try {
+      // Optional protection: when CRON_SECRET is set, require it
+      const expected = process.env.CRON_SECRET;
+      if (expected) {
+        const auth = req.headers["authorization"];
+        if (auth !== `Bearer ${expected}`) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
+      }
+      const deleted = await runDocumentCleanup();
+      res.json({ ok: true, deleted });
+    } catch (error: any) {
+      res.status(500).json({ ok: false, message: error?.message || "Cleanup failed" });
+    }
+  });
 
   // ----- SENDER PROFILES API -----
   // Get all sender profiles
