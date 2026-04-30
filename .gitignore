@@ -8,4 +8,4 @@ vite.config.ts.*
 .env
 .env.local
 .env.*.local
-api/index.mjs
+api/_bundle.mjs
